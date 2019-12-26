@@ -120,9 +120,9 @@ class Client:
         self._device_confs = []
         self._account = None
 
-    async def __del__(self):
+    def __del__(self):
         if self._managed_session and not self._session.closed:
-            await self._session.close()
+            self._session.close()
 
     @staticmethod
     async def login(email: str, password: str, session: Optional[ClientSession] = None):
