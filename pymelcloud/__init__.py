@@ -337,49 +337,63 @@ class Device:
         return UNIT_TEMP_CELSIUS
 
     @property
-    def last_seen(self) -> dt.datetime:
+    def last_seen(self) -> Optional[dt.datetime]:
         """
 		Return timestamp of the last communication between MELCloud and
 		the device in UTC.
 		"""
+        if self._state is None:
+            return None
         return dt.datetime.strptime(
             self._state.get("LastCommunication"), "%Y-%m-%dT%H:%M:%S.%f"
         )
 
     @property
-    def power(self) -> bool:
+    def power(self) -> Optional[bool]:
         """Return power on / standby state of the device."""
+        if self._state is None:
+            return None
         return self._state.get(_SET_PROPERTY_LOOKUP.get("power"))
 
     @property
-    def temperature(self) -> float:
+    def temperature(self) -> Optional[float]:
         """Return room temperature reported by the device."""
+        if self._state is None:
+            return None
         return self._state.get("RoomTemperature")
 
     @property
-    def target_temperature(self) -> float:
+    def target_temperature(self) -> Optional[float]:
         """Return target temperature set for the device."""
+        if self._state is None:
+            return None
         return self._state.get(_SET_PROPERTY_LOOKUP.get("target_temperature"))
 
     @property
-    def target_temperature_step(self) -> float:
+    def target_temperature_step(self) -> Optional[float]:
         """Return target temperature set precision."""
+        if self._state is None:
+            return None
         return self._device_conf.get("Device", {}).get("TemperatureIncrement", 0.5)
 
     @property
-    def target_temperature_min(self) -> float:
+    def target_temperature_min(self) -> Optional[float]:
         """
 		Return maximum target temperature for the currently active operation mode.
 		"""
+        if self._state is None:
+            return None
         return self._device_conf.get("Device", {}).get(
             _OPERATION_MODE_MIN_TEMP_LOOKUP.get(self.operation_mode), 10
         )
 
     @property
-    def target_temperature_max(self) -> float:
+    def target_temperature_max(self) -> Optional[float]:
         """
 		Return maximum target temperature for the currently active operation mode.
 		"""
+        if self._state is None:
+            return None
         return self._device_conf.get("Device", {}).get(
             _OPERATION_MODE_MAX_TEMP_LOOKUP.get(self.operation_mode), 31
         )
@@ -387,6 +401,8 @@ class Device:
     @property
     def operation_mode(self) -> str:
         """Return currently active operation mode."""
+        if self._state is None:
+            return OPERATION_MODE_UNDEFINED
         return _operationModeFrom(
             self._state.get(_SET_PROPERTY_LOOKUP.get("operation_mode"), -1)
         )
@@ -413,12 +429,16 @@ class Device:
         return modes
 
     @property
-    def fan_speed(self) -> str:
+    def fan_speed(self) -> Optional[str]:
         """Return currently active fan speed."""
+        if self._state is None:
+            return None
         return _fanSpeedFrom(self._state.get(_SET_PROPERTY_LOOKUP.get("fan_speed")))
 
-    def fan_speeds(self) -> List[str]:
+    def fan_speeds(self) -> Optional[List[str]]:
         """Return available fan speeds."""
+        if self._state is None:
+            return None
         speeds = []
         if self._device_conf.get("Device", {}).get("HasAutomaticFanSpeed", False):
             speeds.append(FAN_SPEED_AUTO)
