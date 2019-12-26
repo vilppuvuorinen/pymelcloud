@@ -321,6 +321,7 @@ class Device:
         if flags != 0:
             new_state.update({"EffectiveFlags": flags, "HasPendingCommand": True})
 
+        self._pending_writes = {}
         self._state = await self._client._set_device_state(new_state)
 
     @property
