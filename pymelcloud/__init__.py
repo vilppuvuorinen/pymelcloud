@@ -257,6 +257,7 @@ class Device:
         self._set_debounce = set_debounce
         if self._set_debounce is None:
             self._set_debounce = dt.timedelta(milliseconds=500)
+        self._set_event = asyncio.Event()
         self._write_task = None
         self._pending_writes = {}
 
@@ -280,7 +281,7 @@ class Device:
     def disable_debounce(self):
         self._write_debounce = None
 
-    def set(self, properties: Dict[str, any]):
+    async def set(self, properties: Dict[str, any]):
         """Schedule property write to MELCloud"""
         if self._write_task is not None:
             self._write_task.cancel()
@@ -300,6 +301,7 @@ class Device:
             self._pending_writes.update({prop: v})
 
         self._write_task = asyncio.ensure_future(self._write())
+        await self._set_event.wait()
 
     async def _write(self):
         await asyncio.sleep(self._set_debounce.total_seconds())
@@ -323,6 +325,8 @@ class Device:
 
         self._pending_writes = {}
         self._state = await self._client._set_device_state(new_state)
+        self._set_event.set()
+        self._set_event.clear()
 
     @property
     def name(self) -> str:
