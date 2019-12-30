@@ -70,7 +70,6 @@ _OPERATION_MODE_MAX_TEMP_LOOKUP = {
     OPERATION_MODE_UNDEFINED: "MaxTempHeat",
 }
 
-
 def _operationModeFrom(mode: int) -> str:
     return _OPERATION_MODE_LOOKUP.get(mode, OPERATION_MODE_UNDEFINED)
 
@@ -82,11 +81,75 @@ def _operationModeTo(mode: str) -> int:
     raise ValueError(f"Invalid operation_mode [{mode}]")
 
 
+V_VANE_POSITION_AUTO = "auto"
+V_VANE_POSITION_1 = "1-up"
+V_VANE_POSITION_2 = "2"
+V_VANE_POSITION_3 = "3"
+V_VANE_POSITION_4 = "4"
+V_VANE_POSITION_5 = "5-down"
+V_VANE_POSITION_SWING = "swing"
+V_VANE_POSITION_UNDEFINED = "undefined"
+_V_VANE_POSITION_LOOKUP = {
+    0: V_VANE_POSITION_AUTO,
+    1: V_VANE_POSITION_1,
+    2: V_VANE_POSITION_2,
+    3: V_VANE_POSITION_3,
+    4: V_VANE_POSITION_4,
+    5: V_VANE_POSITION_5,
+    7: V_VANE_POSITION_SWING,
+}
+
+def _vVaneFrom(position: int) -> str:
+    return _V_VANE_POSITION_LOOKUP.get(
+        position,
+        V_VANE_POSITION_UNDEFINED
+    )
+
+def _vVaneTo(position: str) -> int:
+    for k, v in _V_VANE_POSITION_LOOKUP.items():
+        if v == position:
+            return k
+    raise ValueError(f"Invalid vertical vane position [{position}]")
+
+H_VANE_POSITION_AUTO = "auto"
+H_VANE_POSITION_1 = "1-left"
+H_VANE_POSITION_2 = "2"
+H_VANE_POSITION_3 = "3"
+H_VANE_POSITION_4 = "4"
+H_VANE_POSITION_5 = "5-right"
+H_VANE_POSITION_SPLIT = "split"
+H_VANE_POSITION_SWING = "swing"
+H_VANE_POSITION_UNDEFINED = "undefined"
+_H_VANE_POSITION_LOOKUP = {
+    0: H_VANE_POSITION_AUTO,
+    1: H_VANE_POSITION_1,
+    2: H_VANE_POSITION_2,
+    3: H_VANE_POSITION_3,
+    4: H_VANE_POSITION_4,
+    5: H_VANE_POSITION_5,
+    8: H_VANE_POSITION_SPLIT,
+    12: H_VANE_POSITION_SWING,
+}
+
+def _hVaneFrom(position: int) -> str:
+    return _H_VANE_POSITION_LOOKUP.get(
+        position,
+        H_VANE_POSITION_UNDEFINED
+    )
+
+def _hVaneTo(position: str) -> int:
+    for k, v in _H_VANE_POSITION_LOOKUP.items():
+        if v == position:
+            return k
+    raise ValueError(f"Invalid horizontal vane position [{position}]")
+
 _SET_PROPERTY_LOOKUP = {
     "power": "Power",
     "target_temperature": "SetTemperature",
     "operation_mode": "OperationMode",
     "fan_speed": "SetFanSpeed",
+    "vane_horizontal": "VaneHorizontal",
+    "vane_vertical": "VaneVertical",
 }
 
 UNIT_TEMP_CELSIUS = "celsius"
@@ -298,6 +361,14 @@ class Device:
                 self._pending_writes.update({prop: _operationModeTo(v)})
                 continue
 
+            if k == "vane_horizontal":
+                self._pending_writes.update({prop: _hVaneTo(v)})
+                continue
+
+            if k == "vane_vertical":
+                self._pending_writes.update({prop: _vVaneTo(v)})
+                continue
+
             self._pending_writes.update({prop: v})
 
         self._write_task = asyncio.ensure_future(self._write())
@@ -317,9 +388,11 @@ class Device:
             flags = flags | 0x04
         if _SET_PROPERTY_LOOKUP.get("fan_speed") in self._pending_writes.keys():
             flags = flags | 0x08
+        if _SET_PROPERTY_LOOKUP.get("vane_vertical") in self._pending_writes.keys():
+            flags = flags | 0x10
+        if _SET_PROPERTY_LOOKUP.get("vane_horizontal") in self._pending_writes.keys():
+            flags = flags | 0x100
 
-        # TODO: vane vertical 0x010
-        # TODO: vane horizontal 0x100
         if flags != 0:
             new_state.update({"EffectiveFlags": flags, "HasPendingCommand": True})
 
@@ -452,3 +525,60 @@ class Device:
             speeds.append(_fanSpeedFrom(num))
 
         return speeds
+
+    @property
+    def vane_horizontal(self) -> Optional[str]:
+        """Return horizontal vane position."""
+        if self._state is None:
+            return None
+        return _hVaneFrom(self._state.get("VaneHorizontal"))
+
+    def vane_horizontal_positions(self) -> Optional[List[str]]:
+        """Return available horizontal vane positions."""
+        if self._device_conf.get("HideVaneControls", False):
+            return []
+        device = self._device_conf.get("Device", {})
+        if not device.get("ModelSupportsVaneHorizontal", False):
+            return []
+
+        positions = [
+            H_VANE_POSITION_AUTO, # ModelSupportsAuto could affect this.
+            H_VANE_POSITION_1,
+            H_VANE_POSITION_2,
+            H_VANE_POSITION_3,
+            H_VANE_POSITION_4,
+            H_VANE_POSITION_5,
+            H_VANE_POSITION_SPLIT,
+        ]
+        if device.get("SwingFunction", False):
+            positions.append(H_VANE_POSITION_SWING)
+
+        return positions
+
+    @property
+    def vane_vertical(self) -> Optional[str]:
+        """Return vertical vane position."""
+        if self._state is None:
+            return None
+        return _vVaneFrom(self._state.get("VaneVertical"))
+
+    def vane_vertical_positions(self) -> Optional[List[str]]:
+        """Return available vertical vane positions."""
+        if self._device_conf.get("HideVaneControls", False):
+            return []
+        device = self._device_conf.get("Device", {})
+        if not device.get("ModelSupportsVaneVertical", False):
+            return []
+
+        positions = [
+            V_VANE_POSITION_AUTO, # ModelSupportsAuto could affect this.
+            V_VANE_POSITION_1,
+            V_VANE_POSITION_2,
+            V_VANE_POSITION_3,
+            V_VANE_POSITION_4,
+            V_VANE_POSITION_5,
+        ]
+        if device.get("SwingFunction", False):
+            positions.append(V_VANE_POSITION_SWING)
+
+        return positions

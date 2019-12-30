@@ -26,6 +26,10 @@ Available properties:
 * available `operation_modes`
 * `fan_speed`
 * available `fan_speeds`
+* `vane_horizontal`
+* available `vane_horizontal_positions`
+* `vane_vertical`
+* available `vane_vertical_positions`
 
 Other properties are available through `_` prefixed state objects if
 one has the time to go through the source. You definitely should go
@@ -43,10 +47,14 @@ Writable properties are:
 * `target_temperature`
 * `operation_mode`
 * `fan_speed`
+* `vane_horizontal`
+* `vane_vertical`
 
-Vane control has not been implemented yet. The API cannot control
-split vanes and home-assistant climate allows just selecting a _ swing_
-mode. Long story short, I just skipped this feature for now.
+There's weird behavior associated with the horizontal vane swing.
+Toggling it on will also toggle vertical swing on and the horizontal
+swing has to be disabled before vertical vanes can be adjusted to any
+other position. This behavior can be replicated using the MELCloud user
+inteface.
 
 ## Example usage
 
