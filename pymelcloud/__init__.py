@@ -2,7 +2,7 @@
 from aiohttp import ClientSession
 import asyncio
 import datetime as dt
-from typing import Dict, List, Optional, TypedDict
+from typing import Dict, List, Optional
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
@@ -155,12 +155,6 @@ _SET_PROPERTY_LOOKUP = {
 
 UNIT_TEMP_CELSIUS = "celsius"
 UNIT_TEMP_FAHRENHEIT = "fahrenheit"
-
-
-class ModelInfo(TypedDict):
-    model_number: int
-    model: str
-    serial_number: str
 
 
 class Client:
@@ -427,12 +421,12 @@ class Device:
         return self._device_conf.get("DeviceName")
 
     @property
-    def units(self) -> Optional[List[ModelInfo]]:
+    def units(self) -> Optional[List[dict]]:
         """Return device model info."""
         if self._device_units is None:
             return None
 
-        infos: List[ModelInfo] = []
+        infos: List[dict] = []
         for unit in self._device_units:
             infos.append(
                 {
