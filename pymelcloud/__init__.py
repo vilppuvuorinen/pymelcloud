@@ -70,6 +70,7 @@ _OPERATION_MODE_MAX_TEMP_LOOKUP = {
     OPERATION_MODE_UNDEFINED: "MaxTempHeat",
 }
 
+
 def _operationModeFrom(mode: int) -> str:
     return _OPERATION_MODE_LOOKUP.get(mode, OPERATION_MODE_UNDEFINED)
 
@@ -99,17 +100,17 @@ _V_VANE_POSITION_LOOKUP = {
     7: V_VANE_POSITION_SWING,
 }
 
+
 def _vVaneFrom(position: int) -> str:
-    return _V_VANE_POSITION_LOOKUP.get(
-        position,
-        V_VANE_POSITION_UNDEFINED
-    )
+    return _V_VANE_POSITION_LOOKUP.get(position, V_VANE_POSITION_UNDEFINED)
+
 
 def _vVaneTo(position: str) -> int:
     for k, v in _V_VANE_POSITION_LOOKUP.items():
         if v == position:
             return k
     raise ValueError(f"Invalid vertical vane position [{position}]")
+
 
 H_VANE_POSITION_AUTO = "auto"
 H_VANE_POSITION_1 = "1-left"
@@ -131,17 +132,17 @@ _H_VANE_POSITION_LOOKUP = {
     12: H_VANE_POSITION_SWING,
 }
 
+
 def _hVaneFrom(position: int) -> str:
-    return _H_VANE_POSITION_LOOKUP.get(
-        position,
-        H_VANE_POSITION_UNDEFINED
-    )
+    return _H_VANE_POSITION_LOOKUP.get(position, H_VANE_POSITION_UNDEFINED)
+
 
 def _hVaneTo(position: str) -> int:
     for k, v in _H_VANE_POSITION_LOOKUP.items():
         if v == position:
             return k
     raise ValueError(f"Invalid horizontal vane position [{position}]")
+
 
 _SET_PROPERTY_LOOKUP = {
     "power": "Power",
@@ -160,6 +161,7 @@ class ModelInfo(TypedDict):
     model_number: int
     model: str
     serial_number: str
+
 
 class Client:
     """MELCloud client"""
@@ -288,7 +290,7 @@ class Client:
         async with self._session.post(
             f"{BASE_URL}/Device/ListDeviceUnits",
             headers=_headers(self._token),
-            json={'deviceId': device.device_id},
+            json={"deviceId": device.device_id},
             raise_for_status=True,
         ) as resp:
             return await resp.json()
@@ -432,11 +434,13 @@ class Device:
 
         infos: List[ModelInfo] = []
         for unit in self._device_units:
-            infos.append({
-                'model_number': unit.get('ModelNumber'),
-                'model': unit.get('Model'),
-                'serial_number': unit.get('SerialNumber'),
-            })
+            infos.append(
+                {
+                    "model_number": unit.get("ModelNumber"),
+                    "model": unit.get("Model"),
+                    "serial_number": unit.get("SerialNumber"),
+                }
+            )
         return infos
 
     @property
@@ -470,8 +474,8 @@ class Device:
         """Return total consumed energy as kWh."""
         if self._device_conf is None:
             return None
-        device = self._device_conf.get('Device', {})
-        reading = device.get('CurrentEnergyConsumed', None)
+        device = self._device_conf.get("Device", {})
+        reading = device.get("CurrentEnergyConsumed", None)
         if reading is None:
             return None
         return reading / 1000.0
@@ -586,7 +590,7 @@ class Device:
             return []
 
         positions = [
-            H_VANE_POSITION_AUTO, # ModelSupportsAuto could affect this.
+            H_VANE_POSITION_AUTO,  # ModelSupportsAuto could affect this.
             H_VANE_POSITION_1,
             H_VANE_POSITION_2,
             H_VANE_POSITION_3,
@@ -615,7 +619,7 @@ class Device:
             return []
 
         positions = [
-            V_VANE_POSITION_AUTO, # ModelSupportsAuto could affect this.
+            V_VANE_POSITION_AUTO,  # ModelSupportsAuto could affect this.
             V_VANE_POSITION_1,
             V_VANE_POSITION_2,
             V_VANE_POSITION_3,
