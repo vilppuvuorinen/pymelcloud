@@ -433,6 +433,17 @@ class Device:
         return self._state.get(_SET_PROPERTY_LOOKUP.get("power"))
 
     @property
+    def total_energy_consumed(self) -> Optional[float]:
+        """Return total consumed energy as kWh."""
+        if self._device_conf is None:
+            return None
+        device = self._device_conf.get('Device', {})
+        reading = device.get('CurrentEnergyConsumed', None)
+        if reading is None:
+            return None
+        return reading / 1000.0
+
+    @property
     def temperature(self) -> Optional[float]:
         """Return room temperature reported by the device."""
         if self._state is None:

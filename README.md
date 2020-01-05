@@ -30,10 +30,33 @@ Available properties:
 * available `vane_horizontal_positions`
 * `vane_vertical`
 * available `vane_vertical_positions`
+* `total_energy_consumed` in kWh. See [notes below.](#energy-consumption)
 
 Other properties are available through `_` prefixed state objects if
 one has the time to go through the source. You definitely should go
-through the source anyways. It's like under 500 lines.
+through the source anyways. It's like under ~~500~~ 600 lines.
+
+### Energy consumption
+
+The energy consumption reading is a little strange. The API returns a
+value of 1.8e6 for my unit. Judging by the scale the unit is either kJ
+or Wh. However, neither of them quite fits.
+
+* Total reading in kJ matches better what I would expect based on the
+energy reports in MELCloud.
+* In Wh the reading is 3-5 times greater than what I would expect, but
+the reading is increasing at a rate that seems to match energy reports
+in MELCloud.
+
+Here are couple of readings with monthly reported usage as reference:
+
+* 2020-01-04T23:42:00+02:00 - 1820400, 28.5 kWh
+* 2020-01-05T09:44:00+02:00 - 1821300, 29.4 kWh
+* 2020-01-05T10:49:00+02:00 - 1821500, 29.6 kWh
+
+I'd say it's pretty clear that it is Wh and the total reading is not
+reflective of unit lifetime energy consumption. `total_energy_consumed`
+converts Wh to kWh.
 
 ## Write
 
