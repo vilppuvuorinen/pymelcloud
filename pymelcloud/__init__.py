@@ -2,7 +2,7 @@
 from aiohttp import ClientSession
 import asyncio
 import datetime as dt
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TypedDict
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
@@ -156,6 +156,11 @@ UNIT_TEMP_CELSIUS = "celsius"
 UNIT_TEMP_FAHRENHEIT = "fahrenheit"
 
 
+class ModelInfo(TypedDict):
+    model_number: int
+    model: str
+    serial_number: str
+
 class Client:
     """MELCloud client"""
 
@@ -279,6 +284,15 @@ class Client:
         await self._fetch_user_details()
         await self._fetch_device_confs()
 
+    async def _get_device_units(self, device) -> Optional[dict]:
+        async with self._session.post(
+            f"{BASE_URL}/Device/ListDeviceUnits",
+            headers=_headers(self._token),
+            json={'deviceId': device.device_id},
+            raise_for_status=True,
+        ) as resp:
+            return await resp.json()
+
     async def _get_device_state(self, device) -> Optional[dict]:
         async with self._session.get(
             f"{BASE_URL}/Device/Get?id={device.device_id}&buildingID={device.building_id}",
@@ -315,6 +329,7 @@ class Device:
 
         self._device_conf = device_conf
         self._state = None
+        self._device_units = None
         self._client = client
 
         self._set_debounce = set_debounce
@@ -337,6 +352,9 @@ class Device:
             and c.get("BuildingID") == self.building_id
         )
         self._state = await self._client._get_device_state(self)
+
+        if self._device_units is None:
+            self._device_units = await self._client._get_device_units(self)
 
     def set_debounce(self, delta: dt.timedelta):
         self._write_debounce = delta
@@ -405,6 +423,21 @@ class Device:
     def name(self) -> str:
         """Return device name."""
         return self._device_conf.get("DeviceName")
+
+    @property
+    def units(self) -> Optional[List[ModelInfo]]:
+        """Return device model info."""
+        if self._device_units is None:
+            return None
+
+        infos: List[ModelInfo] = []
+        for unit in self._device_units:
+            infos.append({
+                'model_number': unit.get('ModelNumber'),
+                'model': unit.get('Model'),
+                'serial_number': unit.get('SerialNumber'),
+            })
+        return infos
 
     @property
     def temp_unit(self) -> str:

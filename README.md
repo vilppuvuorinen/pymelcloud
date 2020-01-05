@@ -14,6 +14,7 @@ Available properties:
 * `name`
 * `mac`
 * `serial`
+* `units` - model info of related units.
 * `temperature`
 * `temp_unit`
 * `last_seen`

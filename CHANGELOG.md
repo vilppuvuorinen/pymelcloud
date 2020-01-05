@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `total_energy_consumed` property returning kWh counter reading.
+- `units` model information.
 
 ## [0.4.0]
 ### Added
