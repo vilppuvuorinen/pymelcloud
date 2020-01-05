@@ -5,15 +5,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.5.0] - 2020-01-05
 ### Added
 - `total_energy_consumed` property returning kWh counter reading.
 - `units` model information.
 
-## [0.4.0]
+## [0.4.0] - 2019-12-30
 ### Added
 - Horizontal and vertical vane support.
 
-## [0.3.0]
+## [0.3.0] - 2019-12-27
 ### Changed
 - Use proper async `set` function for `Device`. `asyncio.Event` is used
 to signal a in-progress `set` operation. Multiple calls to `set` will
