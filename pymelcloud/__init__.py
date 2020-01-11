@@ -188,6 +188,11 @@ class Client:
         if self._managed_session and not self._session.closed:
             self._session.close()
 
+    @property
+    def token(self) -> str:
+        """Return currently used token."""
+        return self._token
+
     @staticmethod
     async def login(email: str, password: str, session: Optional[ClientSession] = None):
         """
