@@ -84,7 +84,7 @@ inteface.
 
 ```python
 >>> import pymelcloud
->>> client = pymelcloud.Client.login("user@example.com", "password")
+>>> client = await pymelcloud.login("user@example.com", "password")
 >>> devices = await client.get_devices()
 >>> device = devices[0]
 >>> await device.update()

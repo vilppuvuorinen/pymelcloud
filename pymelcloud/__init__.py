@@ -157,6 +157,33 @@ UNIT_TEMP_CELSIUS = "celsius"
 UNIT_TEMP_FAHRENHEIT = "fahrenheit"
 
 
+async def login(email: str, password: str, session: Optional[ClientSession] = None):
+    """Login using email and password."""
+
+    async def do_login(_session: ClientSession):
+        body = {
+            "Email": email,
+            "Password": password,
+            "Language": 0,
+            "AppVersion": "1.19.1.1",
+            "Persist": True,
+            "CaptchaResponse": None,
+        }
+
+        async with _session.post(
+            f"{BASE_URL}/Login/ClientLogin", json=body, raise_for_status=True
+        ) as resp:
+            return await resp.json()
+
+    if session:
+        response = await do_login(session)
+    else:
+        async with ClientSession() as _session:
+            response = await do_login(_session)
+
+    return Client(response.get("LoginData").get("ContextKey"), session)
+
+
 class Client:
     """MELCloud client"""
 
@@ -191,33 +218,8 @@ class Client:
 
     @staticmethod
     async def login(email: str, password: str, session: Optional[ClientSession] = None):
-        """
-		Login using email and password. An additional language argument can
-		be provided.
-		"""
-
-        async def do_login(_session: ClientSession):
-            body = {
-                "Email": email,
-                "Password": password,
-                "Language": 0,
-                "AppVersion": "1.19.1.1",
-                "Persist": True,
-                "CaptchaResponse": None,
-            }
-
-            async with _session.post(
-                f"{BASE_URL}/Login/ClientLogin", json=body, raise_for_status=True
-            ) as resp:
-                return await resp.json()
-
-        if session:
-            response = await do_login(session)
-        else:
-            async with ClientSession() as _session:
-                response = await do_login(_session)
-
-        return Client(response.get("LoginData").get("ContextKey"), session)
+        """Forward login call to module method."""
+        return login(email, password, session)
 
     async def get_devices(self) -> List[any]:
         """Build Device instances of all available devices."""
