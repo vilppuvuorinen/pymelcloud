@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name="pymelcloud",
-    version="0.5.1",
+    version="0.6.0",
     description="Python MELCloud interface",
     author="Vilppu Vuorinen",
     author_email="vilppu.jotain@gmail.com",
