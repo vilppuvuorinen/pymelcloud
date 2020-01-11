@@ -184,10 +184,6 @@ class Client:
         self._device_confs = []
         self._account = None
 
-    def __del__(self):
-        if self._managed_session and not self._session.closed:
-            self._session.close()
-
     @property
     def token(self) -> str:
         """Return currently used token."""
