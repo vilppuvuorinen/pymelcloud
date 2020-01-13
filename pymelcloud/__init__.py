@@ -396,7 +396,7 @@ class Device:
         new_state = self._state.copy()
         new_state.update(self._pending_writes)
 
-        flags = 0
+        flags = self._state.get("EffectiveFlags", 0)
         if _SET_PROPERTY_LOOKUP.get("power") in self._pending_writes.keys():
             flags = flags | 0x01
         if _SET_PROPERTY_LOOKUP.get("operation_mode") in self._pending_writes.keys():
