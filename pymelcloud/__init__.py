@@ -410,7 +410,7 @@ class Device:
             flags = flags | 0x01
         if _SET_PROPERTY_LOOKUP.get("operation_mode") in self._pending_writes.keys():
             flags = flags | 0x02
-        if _SET_PROPERTY_LOOKUP.get("temperature") in self._pending_writes.keys():
+        if _SET_PROPERTY_LOOKUP.get("target_temperature") in self._pending_writes.keys():
             flags = flags | 0x04
         if _SET_PROPERTY_LOOKUP.get("fan_speed") in self._pending_writes.keys():
             flags = flags | 0x08
