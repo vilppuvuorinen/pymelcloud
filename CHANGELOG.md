@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Base `EffectiveFlags` update on current state and apply only new
 flags.
+- Use longer device write and conf update intervals.
 
 ## [0.7.0] - 2020-01-11
 ### Changed

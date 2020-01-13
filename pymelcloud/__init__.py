@@ -157,7 +157,14 @@ UNIT_TEMP_CELSIUS = "celsius"
 UNIT_TEMP_FAHRENHEIT = "fahrenheit"
 
 
-async def login(email: str, password: str, session: Optional[ClientSession] = None):
+async def login(
+    email: str,
+    password: str,
+    session: Optional[ClientSession] = None,
+    *,
+    conf_update_interval: Optional[dt.timedelta] = None,
+    device_set_debounce: Optional[dt.timedelta] = None,
+):
     """Login using email and password."""
 
     async def do_login(_session: ClientSession):
@@ -181,7 +188,12 @@ async def login(email: str, password: str, session: Optional[ClientSession] = No
         async with ClientSession() as _session:
             response = await do_login(_session)
 
-    return Client(response.get("LoginData").get("ContextKey"), session)
+    return Client(
+        response.get("LoginData").get("ContextKey"),
+        session,
+        conf_update_interval=conf_update_interval,
+        device_set_debounce=device_set_debounce,
+    )
 
 
 class Client:
@@ -191,8 +203,9 @@ class Client:
         self,
         token: str,
         session: Optional[ClientSession] = None,
-        conf_update_interval: Optional[dt.timedelta] = None,
-        device_set_debounce: Optional[dt.timedelta] = None,
+        *,
+        conf_update_interval = dt.timedelta(minutes=5),
+        device_set_debounce = dt.timedelta(seconds=1),
     ):
         """Initialize MELCloud client"""
         self._token = token
@@ -203,8 +216,6 @@ class Client:
             self._session = ClientSession()
             self._managed_session = True
         self._conf_update_interval = conf_update_interval
-        if self._conf_update_interval is None:
-            self._conf_update_interval = dt.timedelta(milliseconds=500)
         self._device_set_debounce = device_set_debounce
 
         self._last_update = None
@@ -317,7 +328,7 @@ class Device:
         self,
         device_conf: dict,
         client: Client,
-        set_debounce: Optional[dt.timedelta] = None,
+        set_debounce = dt.timedelta(seconds=1),
     ):
         self.device_id = device_conf.get("DeviceID")
         self.building_id = device_conf.get("BuildingID")
@@ -332,8 +343,6 @@ class Device:
         self._client = client
 
         self._set_debounce = set_debounce
-        if self._set_debounce is None:
-            self._set_debounce = dt.timedelta(milliseconds=500)
         self._set_event = asyncio.Event()
         self._write_task = None
         self._pending_writes = {}
