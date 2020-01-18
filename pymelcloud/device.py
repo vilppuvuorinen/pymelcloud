@@ -134,3 +134,10 @@ class Device(ABC):
         return datetime.strptime(
             self._state.get("LastCommunication"), "%Y-%m-%dT%H:%M:%S.%f"
         )
+
+    @property
+    def power(self) -> Optional[bool]:
+        """Return power on / standby state of the device."""
+        if self._state is None:
+            return None
+        return self._state.get("Power")

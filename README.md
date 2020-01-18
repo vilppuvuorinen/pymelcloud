@@ -1,8 +1,13 @@
 # pymelcloud
 
-This is a package for interacting with MELCloud and Mitsubishi Electric
-HVAC devices, etc. It's still a little rough all around and the
+This is a package for interacting with MELCloud and Mitsubishi 
+Electric devices. It's still a little rough all around and the
 documentation is a joke.
+
+## Supported devices
+
+* Air-to-air heat pumps (DeviceType=0)
+* [WIP] Ecodan air-to-water heat pumps (DeviceType=1)
 
 ## Read
 
@@ -19,6 +24,11 @@ Available properties:
 * `temp_unit`
 * `last_seen`
 * `power`
+
+Other properties are available through `_` prefixed state objects if
+one has the time to go through the source.
+
+### Air-to-air heat pump properties
 * `target_temperature`
 * `target_temperature_step`
 * `target_temperature_min`
@@ -33,9 +43,9 @@ Available properties:
 * available `vane_vertical_positions`
 * `total_energy_consumed` in kWh. See [notes below.](#energy-consumption)
 
-Other properties are available through `_` prefixed state objects if
-one has the time to go through the source. You definitely should go
-through the source anyways. It's like under ~~500~~ 600 lines.
+### Air-to-water heat pump properties
+
+WIP
 
 ### Energy consumption
 
@@ -68,6 +78,9 @@ immediately due to the 60 second polling interval.
 Writable properties are:
 
 * `power`
+
+### Air-to-air heat pump write
+
 * `target_temperature`
 * `operation_mode`
 * `fan_speed`
@@ -80,12 +93,16 @@ swing has to be disabled before vertical vanes can be adjusted to any
 other position. This behavior can be replicated using the MELCloud user
 inteface.
 
+### Air-to-water heat pump write
+
+WIP
+
 ## Example usage
 
 ```python
 >>> import pymelcloud
->>> client = await pymelcloud.login("user@example.com", "password")
->>> devices = await client.get_devices()
+>>> token = await pymelcloud.login("user@example.com", "password")
+>>> devices = await pymelcloud.get_devices(token)
 >>> device = devices[0]
 >>> await device.update()
 >>> device.name

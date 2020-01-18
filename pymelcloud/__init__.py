@@ -6,6 +6,7 @@ from typing import List, Optional, Type
 
 from pymelcloud.client import Client as _Client, login as _login
 from pymelcloud.device import Device
+from pymelcloud.ecodan import Ecodan
 from pymelcloud.heat_pump import HeatPump
 
 
@@ -51,4 +52,8 @@ async def get_devices(
         HeatPump(conf, client, set_debounce=device_set_debounce)
         for conf in client.device_confs
         if conf.get("Device", {}).get("DeviceType", -1) == 0
+    ] + [
+        Ecodan(conf, client, set_debounce=device_set_debounce)
+        for conf in client.device_confs
+        if conf.get("Device", {}).get("DeviceType", -1) == 1
     ]

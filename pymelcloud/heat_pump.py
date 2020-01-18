@@ -172,13 +172,6 @@ class HeatPump(Device):
         state[EFFECTIVE_FLAGS] = flags
 
     @property
-    def power(self) -> Optional[bool]:
-        """Return power on / standby state of the device."""
-        if self._state is None:
-            return None
-        return self._state.get("Power")
-
-    @property
     def total_energy_consumed(self) -> Optional[float]:
         """Return total consumed energy as kWh."""
         if self._device_conf is None:
