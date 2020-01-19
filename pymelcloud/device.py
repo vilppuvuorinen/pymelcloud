@@ -22,7 +22,7 @@ class Device(ABC):
         self.mac = device_conf.get("MacAddress")
         self.serial = device_conf.get("SerialNumber")
 
-        self._use_fahrenheit = client._account.get("UseFahrenheit")
+        self._use_fahrenheit = client.account.get("UseFahrenheit")
 
         self._device_conf = device_conf
         self._state = None

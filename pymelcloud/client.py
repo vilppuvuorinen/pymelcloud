@@ -98,10 +98,6 @@ class Client:
         """Return account."""
         return self._account
 
-    async def get_devices(self) -> List[any]:
-        """Build Device instances of all available devices."""
-        await self.update_confs()
-
     async def _fetch_user_details(self):
         """Fetch user details."""
         async with self._session.get(
