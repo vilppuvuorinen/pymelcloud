@@ -127,7 +127,19 @@ class Ecodan(Device):
         return self._state.get("SetTankWaterTemperature")
 
     @property
-    def outdoor_temperature(self) -> Optional[float]:
+    def target_tank_temperature_min(self) -> Optional[float]:
+        """Return minimum target tank water temperature."""
+        device = self._device_conf.get("Device", {})
+        return device.get("MinSetTemperature")
+
+    @property
+    def target_tank_temperature_max(self) -> Optional[float]:
+        """Return maximum target tank water temperature."""
+        device = self._device_conf.get("Device", {})
+        return device.get("MaxSetTemperature")
+
+    @property
+    def outside_temperature(self) -> Optional[float]:
         """Return outdoor temperature reported by the device."""
         if self._state is None:
             return None
