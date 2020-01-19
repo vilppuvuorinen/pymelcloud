@@ -101,8 +101,8 @@ WIP
 
 ```python
 >>> import pymelcloud
->>> client = await pymelcloud.login("user@example.com", "password")
->>> devices = await client.get_devices()
+>>> token = await pymelcloud.login("user@example.com", "password")
+>>> devices = await pymelcloud.get_devices(token)
 >>> device = devices[0]
 >>> await device.update()
 >>> device.name
