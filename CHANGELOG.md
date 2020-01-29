@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2020-01-29
+### Added
+- `get_devices` module method. `Client` does not need to be accessed
+directly anymore.
+
+### Changed
+- Support for multiple device types. Implemented `AtaDevice` (previous
+implementation) and `AtwDevice`.
+- `operation_modes`, `fan_speeds` and other list getters are
+implemented as properties.
+- `login` method returns only acquired access token.
+
 ## [0.7.1] - 2020-01-13
 ### Fixed
 - Base `EffectiveFlags` update on current state and apply only new
