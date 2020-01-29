@@ -1,9 +1,8 @@
-"""Heat pump (DeviceType=0) device definition."""
+"""Air-To-Air (DeviceType=0) device definition."""
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.device import Device, EFFECTIVE_FLAGS
 
-PROPERTY_POWER = "power"
 PROPERTY_TARGET_TEMPERATURE = "target_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
 PROPERTY_FAN_SPEED = "fan_speed"
@@ -138,8 +137,8 @@ def _vertical_vane_to(position: str) -> int:
     raise ValueError(f"Invalid vertical vane position [{position}]")
 
 
-class HeatPump(Device):
-    """Heat pump device."""
+class AtaDevice(Device):
+    """Air-to-Air device."""
 
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.
@@ -148,10 +147,7 @@ class HeatPump(Device):
     """
         flags = state.get(EFFECTIVE_FLAGS, 0)
 
-        if key == PROPERTY_POWER:
-            state["Power"] = value
-            flags = flags | 0x01
-        elif key == PROPERTY_TARGET_TEMPERATURE:
+        if key == PROPERTY_TARGET_TEMPERATURE:
             state["SetTemperature"] = value
             flags = flags | 0x04
         elif key == PROPERTY_OPERATION_MODE:

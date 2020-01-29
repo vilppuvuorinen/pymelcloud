@@ -7,6 +7,8 @@ from typing import Any, Dict, List, Optional
 from pymelcloud.const import DEVICE_TYPE_LOOKUP, UNIT_TEMP_CELSIUS, UNIT_TEMP_FAHRENHEIT
 from pymelcloud.client import Client
 
+PROPERTY_POWER = "power"
+
 EFFECTIVE_FLAGS = "EffectiveFlags"
 HAS_PENDING_COMMAND = "HasPendingCommand"
 
@@ -77,7 +79,11 @@ class Device(ABC):
         new_state = self._state.copy()
 
         for k, value in self._pending_writes.items():
-            self.apply_write(new_state, k, value)
+            if k == PROPERTY_POWER:
+                new_state["Power"] = value
+                new_state[EFFECTIVE_FLAGS] = new_state.get(EFFECTIVE_FLAGS, 0) | 0x01
+            else:
+                self.apply_write(new_state, k, value)
 
         if new_state[EFFECTIVE_FLAGS] != 0:
             new_state.update({HAS_PENDING_COMMAND: True})

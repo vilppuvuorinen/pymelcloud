@@ -7,7 +7,7 @@ documentation is a joke.
 ## Supported devices
 
 * Air-to-air heat pumps (DeviceType=0)
-* [WIP] Ecodan air-to-water heat pumps (DeviceType=1)
+* [WIP] Air-to-water heat pumps (DeviceType=1)
 
 ## Read
 
@@ -44,8 +44,19 @@ one has the time to go through the source.
 * `total_energy_consumed` in kWh. See [notes below.](#energy-consumption)
 
 ### Air-to-water heat pump properties
-
-WIP
+* `tank_temperature`
+* `target_tank_temperature`
+* `tank_temperature_min`
+* `tank_temperature_max`
+* `outside_temperature`
+* `zones`
+  * `name`
+  * `state`
+  * `room_temperature`
+  * `target_temperature`
+* `state`
+* `operation_mode`
+* available `operation_modes`
 
 ### Energy consumption
 
@@ -95,14 +106,20 @@ inteface.
 
 ### Air-to-water heat pump write
 
-WIP
+* `target_tank_temperature`
+* `operation_mode`
+* `zone_1_target_temperature`
+* `zone_2_target_tempeature`
+
+Zone target temperatures can also be set via the `Zone` object
+returned by `zones` property on `AtwDevice`.
 
 ## Example usage
 
 ```python
 >>> import pymelcloud
->>> client = await pymelcloud.login("user@example.com", "password")
->>> devices = await client.get_devices()
+>>> token = await pymelcloud.login("user@example.com", "password")
+>>> devices = await pymelcloud.get_devices(token)
 >>> device = devices[0]
 >>> await device.update()
 >>> device.name

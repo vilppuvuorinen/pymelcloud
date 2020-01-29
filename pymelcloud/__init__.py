@@ -6,8 +6,8 @@ from typing import List, Optional, Type
 
 from pymelcloud.client import Client as _Client, login as _login
 from pymelcloud.device import Device
-from pymelcloud.ecodan import Ecodan
-from pymelcloud.heat_pump import HeatPump
+from pymelcloud.atw_device import AtwDevice
+from pymelcloud.ata_device import AtaDevice
 
 
 async def login(
@@ -49,11 +49,11 @@ async def get_devices(
     )
     await client.update_confs()
     return [
-        HeatPump(conf, client, set_debounce=device_set_debounce)
+        AtaDevice(conf, client, set_debounce=device_set_debounce)
         for conf in client.device_confs
         if conf.get("Device", {}).get("DeviceType", -1) == 0
     ] + [
-        Ecodan(conf, client, set_debounce=device_set_debounce)
+        AtwDevice(conf, client, set_debounce=device_set_debounce)
         for conf in client.device_confs
         if conf.get("Device", {}).get("DeviceType", -1) == 1
     ]
