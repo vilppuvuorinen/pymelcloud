@@ -228,6 +228,7 @@ class AtaDevice(Device):
             return OPERATION_MODE_UNDEFINED
         return _operation_mode_from(self._state.get("OperationMode", -1))
 
+    @property
     def operation_modes(self) -> List[str]:
         """Return available operation modes."""
         modes: List[str] = []
@@ -256,6 +257,7 @@ class AtaDevice(Device):
             return None
         return _fan_speed_from(self._state.get("SetFanSpeed"))
 
+    @property
     def fan_speeds(self) -> Optional[List[str]]:
         """Return available fan speeds."""
         if self._state is None:
@@ -277,6 +279,7 @@ class AtaDevice(Device):
             return None
         return _horizontal_vane_from(self._state.get("VaneHorizontal"))
 
+    @property
     def vane_horizontal_positions(self) -> Optional[List[str]]:
         """Return available horizontal vane positions."""
         if self._device_conf.get("HideVaneControls", False):
@@ -306,6 +309,7 @@ class AtaDevice(Device):
             return None
         return _vertical_vane_from(self._state.get("VaneVertical"))
 
+    @property
     def vane_vertical_positions(self) -> Optional[List[str]]:
         """Return available vertical vane positions."""
         if self._device_conf.get("HideVaneControls", False):
