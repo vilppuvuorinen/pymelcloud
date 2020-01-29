@@ -67,6 +67,8 @@ class Device(ABC):
             self._write_task.cancel()
 
         for k, value in properties.items():
+            if k == PROPERTY_POWER:
+                continue
             self.apply_write({}, k, value)
 
         self._pending_writes.update(properties)
