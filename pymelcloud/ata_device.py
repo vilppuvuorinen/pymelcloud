@@ -74,7 +74,6 @@ def _fan_speed_from(speed: int) -> str:
 
 
 def _fan_speed_to(speed: str) -> int:
-    assert speed >= 0
     if speed == FAN_SPEED_AUTO:
         return 0
 
