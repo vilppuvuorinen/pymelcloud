@@ -20,7 +20,6 @@ Available properties:
 * `mac`
 * `serial`
 * `units` - model info of related units.
-* `temperature`
 * `temp_unit`
 * `last_seen`
 * `power`
@@ -29,6 +28,7 @@ Other properties are available through `_` prefixed state objects if
 one has the time to go through the source.
 
 ### Air-to-air heat pump properties
+* `room_temperature`
 * `target_temperature`
 * `target_temperature_step`
 * `target_temperature_min`

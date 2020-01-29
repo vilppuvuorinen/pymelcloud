@@ -179,7 +179,7 @@ class AtaDevice(Device):
         return reading / 1000.0
 
     @property
-    def temperature(self) -> Optional[float]:
+    def room_temperature(self) -> Optional[float]:
         """Return room temperature reported by the device."""
         if self._state is None:
             return None
