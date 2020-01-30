@@ -10,7 +10,6 @@ PROPERTY_VANE_HORIZONTAL = "vane_horizontal"
 PROPERTY_VANE_VERTICAL = "vane_vertical"
 
 FAN_SPEED_AUTO = "auto"
-FAN_SPEED_SLUG = "speed_"
 
 OPERATION_MODE_HEAT = "heat"
 OPERATION_MODE_DRY = "dry"
@@ -69,15 +68,13 @@ H_VANE_POSITION_UNDEFINED = "undefined"
 def _fan_speed_from(speed: int) -> str:
     if speed == 0:
         return FAN_SPEED_AUTO
-
-    return f"{FAN_SPEED_SLUG}{speed}"
+    return str(speed)
 
 
 def _fan_speed_to(speed: str) -> int:
     if speed == FAN_SPEED_AUTO:
         return 0
-
-    return int(speed[len(FAN_SPEED_SLUG) :])
+    return int(speed)
 
 
 def _operation_mode_from(mode: int) -> str:
