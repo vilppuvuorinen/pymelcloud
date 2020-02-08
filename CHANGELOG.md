@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use device type specific set endpoint.
-
+- Return devices in a device type keyed dict from `get_devices` so that
+caller does not have to do `isinstance` based filtering.
 
 ## [1.2.0] - 2020-01-30
 ### Changed

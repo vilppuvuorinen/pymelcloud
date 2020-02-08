@@ -9,6 +9,9 @@ from pymelcloud.device import Device
 from pymelcloud.atw_device import AtwDevice
 from pymelcloud.ata_device import AtaDevice
 
+DEVICE_TYPE_ATA = "ata"
+DEVICE_TYPE_ATW = "atw"
+
 
 async def login(
     email: str,
@@ -48,12 +51,15 @@ async def get_devices(
         device_set_debounce=device_set_debounce,
     )
     await client.update_confs()
-    return [
-        AtaDevice(conf, client, set_debounce=device_set_debounce)
-        for conf in client.device_confs
-        if conf.get("Device", {}).get("DeviceType", -1) == 0
-    ] + [
-        AtwDevice(conf, client, set_debounce=device_set_debounce)
-        for conf in client.device_confs
-        if conf.get("Device", {}).get("DeviceType", -1) == 1
-    ]
+    return {
+        DEVICE_TYPE_ATA: [
+            AtaDevice(conf, client, set_debounce=device_set_debounce)
+            for conf in client.device_confs
+            if conf.get("Device", {}).get("DeviceType", -1) == 0
+        ],
+        DEVICE_TYPE_ATW: [
+            AtwDevice(conf, client, set_debounce=device_set_debounce)
+            for conf in client.device_confs
+            if conf.get("Device", {}).get("DeviceType", -1) == 1
+        ],
+    }

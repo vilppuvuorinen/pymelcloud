@@ -120,7 +120,7 @@ returned by `zones` property on `AtwDevice`.
 >>> import pymelcloud
 >>> token = await pymelcloud.login("user@example.com", "password")
 >>> devices = await pymelcloud.get_devices(token)
->>> device = devices[0]
+>>> device = devices[pymelcloud.DEVICE_TYPE_ATA][0]
 >>> await device.update()
 >>> device.name
 'Heat Pump 1'
