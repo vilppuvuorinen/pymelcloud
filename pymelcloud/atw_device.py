@@ -7,6 +7,8 @@ PROPERTY_TARGET_TANK_TEMPERATURE = "target_tank_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
 PROPERTY_ZONE_1_TARGET_TEMPERATURE = "zone_1_target_temperature"
 PROPERTY_ZONE_2_TARGET_TEMPERATURE = "zone_2_target_temperature"
+PROPERTY_ZONE_1_OPERATION_MODE = "zone_1_operation_mode"
+PROPERTY_ZONE_2_OPERATION_MODE = "zone_2_operation_mode"
 
 OPERATION_MODE_AUTO = "auto"
 OPERATION_MODE_FORCE_HOT_WATER = "force_hot_water"
@@ -31,27 +33,26 @@ _STATE_LOOKUP = {
 }
 
 
-ZONE_PROPERTY_TARGET_TEMPERATURE = "target_temperature"
+ZONE_OPERATION_MODE_HEAT = "heat"
+ZONE_OPERATION_MODE_COOL = "cool"
+ZONE_OPERATION_MODE_UNKNOWN = "unknown"
 
 ZONE_STATE_HEAT = "heat"
 ZONE_STATE_IDLE = "idle"
 ZONE_STATE_COOL = "cool"
 ZONE_STATE_UNKNOWN = "unknown"
 
-_ZONE_STATE_LOOKUP = {
-    1: ZONE_STATE_HEAT,
-    2: ZONE_STATE_IDLE,
-    3: ZONE_STATE_COOL,  # I'm just guessing here.
-}
-
 
 class Zone:
     """Zone controlled by Air-to-Water device."""
 
-    def __init__(self, device, device_state: dict, zone_index: int):
+    def __init__(
+        self, device, device_state: dict, device_conf: dict, zone_index: int,
+    ):
         """Initialize Zone."""
         self._device = device
         self._device_state = device_state
+        self._device_conf = device_conf
         self.zone_index = zone_index
 
     @property
@@ -69,10 +70,13 @@ class Zone:
     @property
     def state(self) -> str:
         """Return the current state."""
-        return _ZONE_STATE_LOOKUP.get(
-            self._device_state.get(f"OperationModeZone{self.zone_index}"),
-            ZONE_STATE_UNKNOWN,
-        )
+        if self._device_state.get(f"IdleZone{self.zone_index}", False):
+            return ZONE_STATE_IDLE
+
+        if len(self.operation_modes) == 1:
+            return ZONE_STATE_HEAT
+
+        return ZONE_STATE_UNKNOWN
 
     @property
     def room_temperature(self) -> float:
@@ -84,11 +88,40 @@ class Zone:
         """Return target temperature."""
         return self._device_state.get(f"SetTemperatureZone{self.zone_index}")
 
-    def set_target_temperature(self, target_temperature):
+    async def set_target_temperature(self, target_temperature):
         """Set target temperature for this zone."""
-        return self._device.set(
-            {f"zone_{self.zone_index}_target_temperature": target_temperature}
-        )
+        if self.zone_index == 1:
+            prop = PROPERTY_ZONE_1_TARGET_TEMPERATURE
+        else:
+            prop = PROPERTY_ZONE_2_TARGET_TEMPERATURE
+        await self._device.set({prop: target_temperature})
+
+    @property
+    def operation_mode(self) -> str:
+        """Return current operation mode."""
+        if len(self.operation_modes) == 1:
+            return ZONE_OPERATION_MODE_HEAT
+        return ZONE_OPERATION_MODE_UNKNOWN
+
+    @property
+    def operation_modes(self) -> List[str]:
+        """Return list of available operation modes."""
+        modes = [ZONE_OPERATION_MODE_HEAT]
+        if self._device_conf.get("Device", {}).get("CanCool", False):
+            modes.append(ZONE_OPERATION_MODE_COOL)
+        return modes
+
+    async def set_operation_mode(self, mode: str):
+        """Change operation mode."""
+        if len(self.operation_modes) == 1:
+            raise ValueError("Cannot set operation mode. Only a single mode available.")
+
+        # if self.zone_index == 1:
+        #    prop = PROPERTY_ZONE_1_OPERATION_MODE
+        # else:
+        #    prop = PROPERTY_ZONE_2_OPERATION_MODE
+        # await self._device.set({prop: mode})
+        raise ValueError("Cannot set operation mode. Not implemented")
 
 
 class AtwDevice(Device):
@@ -159,10 +192,10 @@ class AtwDevice(Device):
 
         device = self._device_conf.get("Device", {})
         if device.get("HasThermostatZone1", False):
-            _zones.append(Zone(self, self._state, 1))
+            _zones.append(Zone(self, self._state, self._device_conf, 1))
 
         if device.get("HasZone2") and device.get("HasThermostatZone2", False):
-            _zones.append(Zone(self, self._state, 2))
+            _zones.append(Zone(self, self._state, self._device_conf, 2))
 
         return _zones
 
