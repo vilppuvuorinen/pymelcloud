@@ -189,8 +189,16 @@ class Client:
         This method is as dumb as it gets. Device is responsible for updating
         the state and managing EffectiveFlags.
         """
+        device_type = device.get("DeviceType")
+        if device_type == 0:
+            setter = "SetAta"
+        elif device_type == 1:
+            setter = "SetAtw"
+        else:
+            raise ValueError(f"Unsupported device type [{device_type}]")
+
         async with self._session.post(
-            f"{BASE_URL}/Device/SetAta",
+            f"{BASE_URL}/Device/{setter}",
             headers=_headers(self._token),
             json=device,
             raise_for_status=True,
