@@ -189,17 +189,15 @@ class AtaDevice(Device):
         return self._state.get("SetTemperature")
 
     @property
-    def target_temperature_step(self) -> Optional[float]:
+    def target_temperature_step(self) -> float:
         """Return target temperature set precision."""
-        if self._state is None:
-            return None
-        return self._device_conf.get("Device", {}).get("TemperatureIncrement", 0.5)
+        return self.temperature_increment
 
     @property
     def target_temperature_min(self) -> Optional[float]:
         """
-		Return maximum target temperature for the currently active operation mode.
-		"""
+        Return maximum target temperature for the currently active operation mode.
+        """
         if self._state is None:
             return None
         return self._device_conf.get("Device", {}).get(
@@ -209,8 +207,8 @@ class AtaDevice(Device):
     @property
     def target_temperature_max(self) -> Optional[float]:
         """
-		Return maximum target temperature for the currently active operation mode.
-		"""
+        Return maximum target temperature for the currently active operation mode.
+        """
         if self._state is None:
             return None
         return self._device_conf.get("Device", {}).get(

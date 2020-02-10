@@ -1,7 +1,7 @@
 """MEL API access"""
 from aiohttp import ClientSession
 from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
@@ -89,12 +89,12 @@ class Client:
         return self._token
 
     @property
-    def device_confs(self) -> dict:
+    def device_confs(self) -> List[Dict[Any, Any]]:
         """Return device configurations."""
         return self._device_confs
 
     @property
-    def account(self) -> dict:
+    def account(self) -> Dict[Any, Any]:
         """Return account."""
         return self._account
 
@@ -137,11 +137,11 @@ class Client:
 
     async def update_confs(self):
         """
-		Update device_confs and account.
-        
+        Update device_confs and account.
+
         Calls are rate limited to allow Device instances to freely poll their own
         state while refreshing the device_confs list and account.
-		"""
+        """
         now = datetime.now()
         if (
             self._last_update is not None
@@ -153,7 +153,7 @@ class Client:
         await self._fetch_user_details()
         await self._fetch_device_confs()
 
-    async def fetch_device_units(self, device) -> Optional[dict]:
+    async def fetch_device_units(self, device) -> Optional[Dict[Any, Any]]:
         """
         Fetch unit information for a device.
 
@@ -168,7 +168,7 @@ class Client:
         ) as resp:
             return await resp.json()
 
-    async def fetch_device_state(self, device) -> Optional[dict]:
+    async def fetch_device_state(self, device) -> Optional[Dict[Any, Any]]:
         """
         Fetch state information of a device.
 

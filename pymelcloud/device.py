@@ -46,9 +46,9 @@ class Device(ABC):
 
     async def update(self):
         """
-		Fetch state of the device from MELCloud. List of devicec_confs is also
-		updated.
-		"""
+        Fetch state of the device from MELCloud. List of device_confs is also
+        updated.
+        """
         await self._client.update_confs()
         self._device_conf = next(
             c
@@ -132,11 +132,16 @@ class Device(ABC):
         return UNIT_TEMP_CELSIUS
 
     @property
+    def temperature_increment(self) -> float:
+        """Return temperature increment."""
+        return self._device_conf.get("Device", {}).get("TemperatureIncrement", 0.5)
+
+    @property
     def last_seen(self) -> Optional[datetime]:
         """
-		Return timestamp of the last communication between MELCloud and
-		the device in UTC.
-		"""
+        Return timestamp of the last communication between MELCloud and
+        the device in UTC.
+        """
         if self._state is None:
             return None
         return datetime.strptime(
