@@ -1,7 +1,7 @@
 """Air-To-Water (DeviceType=1) device definition."""
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
-from pymelcloud.device import Device, EFFECTIVE_FLAGS
+from pymelcloud.device import EFFECTIVE_FLAGS, Device
 
 PROPERTY_TARGET_TANK_TEMPERATURE = "target_tank_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
@@ -47,7 +47,11 @@ class Zone:
     """Zone controlled by Air-to-Water device."""
 
     def __init__(
-        self, device, device_state: dict, device_conf: dict, zone_index: int,
+            self,
+            device,
+            device_state: Callable[[], Dict[Any, Any]],
+            device_conf: Callable[[], Dict[Any, Any]],
+            zone_index: int,
     ):
         """Initialize Zone."""
         self._device = device
@@ -58,19 +62,19 @@ class Zone:
     @property
     def name(self) -> Optional[str]:
         """Return zone name if defined."""
-        return self._device_state.get(
+        return self._device_state().get(
             f"Zone{self.zone_index}", f"Zone {self.zone_index}"
         )
 
     @property
     def prohibit(self) -> bool:
         """Return prohibit flag of the zone."""
-        return self._device_state.get(f"ProhibitZone{self.zone_index}")
+        return self._device_state().get(f"ProhibitZone{self.zone_index}")
 
     @property
     def state(self) -> str:
         """Return the current state."""
-        if self._device_state.get(f"IdleZone{self.zone_index}", False):
+        if self._device_state().get(f"IdleZone{self.zone_index}", False):
             return ZONE_STATE_IDLE
 
         if len(self.operation_modes) == 1:
@@ -81,12 +85,12 @@ class Zone:
     @property
     def room_temperature(self) -> float:
         """Return room temperature."""
-        return self._device_state.get(f"RoomTemperatureZone{self.zone_index}")
+        return self._device_state().get(f"RoomTemperatureZone{self.zone_index}")
 
     @property
     def target_temperature(self) -> float:
         """Return target temperature."""
-        return self._device_state.get(f"SetTemperatureZone{self.zone_index}")
+        return self._device_state().get(f"SetTemperatureZone{self.zone_index}")
 
     async def set_target_temperature(self, target_temperature):
         """Set target temperature for this zone."""
@@ -107,7 +111,7 @@ class Zone:
     def operation_modes(self) -> List[str]:
         """Return list of available operation modes."""
         modes = [ZONE_OPERATION_MODE_HEAT]
-        if self._device_conf.get("Device", {}).get("CanCool", False):
+        if self._device_conf().get("Device", {}).get("CanCool", False):
             modes.append(ZONE_OPERATION_MODE_COOL)
         return modes
 
@@ -192,10 +196,10 @@ class AtwDevice(Device):
 
         device = self._device_conf.get("Device", {})
         if device.get("HasThermostatZone1", False):
-            _zones.append(Zone(self, self._state, self._device_conf, 1))
+            _zones.append(Zone(self, lambda: self._state, lambda: self._device_conf, 1))
 
         if device.get("HasZone2") and device.get("HasThermostatZone2", False):
-            _zones.append(Zone(self, self._state, self._device_conf, 2))
+            _zones.append(Zone(self, lambda: self._state, lambda: self._device_conf, 2))
 
         return _zones
 
