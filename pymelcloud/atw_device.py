@@ -47,11 +47,11 @@ class Zone:
     """Zone controlled by Air-to-Water device."""
 
     def __init__(
-            self,
-            device,
-            device_state: Callable[[], Dict[Any, Any]],
-            device_conf: Callable[[], Dict[Any, Any]],
-            zone_index: int,
+        self,
+        device,
+        device_state: Callable[[], Dict[Any, Any]],
+        device_conf: Callable[[], Dict[Any, Any]],
+        zone_index: int,
     ):
         """Initialize Zone."""
         self._device = device

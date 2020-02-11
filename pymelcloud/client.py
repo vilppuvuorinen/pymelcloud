@@ -1,7 +1,8 @@
 """MEL API access"""
-from aiohttp import ClientSession
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
+
+from aiohttp import ClientSession
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
