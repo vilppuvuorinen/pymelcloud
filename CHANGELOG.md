@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix `conf_update_interval` and `device_set_debounce` forwarding in `login`.
 - Fix detached ATW zone state.
 - Convert zone operation mode set to no-op instead of raising `ValueError`.
+- Fix ATW zone name fallback.
 
 ## [2.0.0] - 2020-02-08
 ### Added

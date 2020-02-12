@@ -62,9 +62,10 @@ class Zone:
     @property
     def name(self) -> Optional[str]:
         """Return zone name if defined."""
-        return self._device_state().get(
-            f"Zone{self.zone_index}", f"Zone {self.zone_index}"
-        )
+        zone_name = self._device_conf().get(f"Zone{self.zone_index}Name")
+        if zone_name is None:
+            return f"Zone {self.zone_index}"
+        return zone_name
 
     @property
     def prohibit(self) -> bool:
