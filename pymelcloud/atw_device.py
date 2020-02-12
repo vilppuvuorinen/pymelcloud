@@ -147,6 +147,12 @@ class AtwDevice(Device):
         elif key == PROPERTY_ZONE_2_TARGET_TEMPERATURE:
             state["SetTemperatureZone2"] = value
             flags = flags | 34359738880
+        elif key == PROPERTY_ZONE_1_OPERATION_MODE:
+            # TODO: Apply changes
+            pass
+        elif key == PROPERTY_ZONE_2_OPERATION_MODE:
+            # TODO: Apply changes
+            pass
         else:
             raise ValueError(f"Cannot set {key}, invalid property")
 
