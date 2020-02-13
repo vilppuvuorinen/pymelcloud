@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Forward AtaDevice `target_temperature_step` calls to
 `temperature_increment`.
+- Rename ATW zone `state` to `status`.
 
 ### Fixed
 - Fix `get_devices` type hints.

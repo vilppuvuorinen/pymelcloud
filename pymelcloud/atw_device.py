@@ -37,10 +37,10 @@ ZONE_OPERATION_MODE_HEAT = "heat"
 ZONE_OPERATION_MODE_COOL = "cool"
 ZONE_OPERATION_MODE_UNKNOWN = "unknown"
 
-ZONE_STATE_HEAT = "heat"
-ZONE_STATE_IDLE = "idle"
-ZONE_STATE_COOL = "cool"
-ZONE_STATE_UNKNOWN = "unknown"
+ZONE_STATUS_HEAT = ZONE_OPERATION_MODE_HEAT
+ZONE_STATUS_IDLE = "idle"
+ZONE_STATUS_COOL = ZONE_OPERATION_MODE_COOL
+ZONE_STATUS_UNKNOWN = "unknown"
 
 
 class Zone:
@@ -49,7 +49,7 @@ class Zone:
     def __init__(
         self,
         device,
-        device_state: Callable[[], Dict[Any, Any]],
+        device_state: Callable[[], Optional[Dict[Any, Any]]],
         device_conf: Callable[[], Dict[Any, Any]],
         zone_index: int,
     ):
@@ -73,15 +73,21 @@ class Zone:
         return self._device_state().get(f"ProhibitZone{self.zone_index}")
 
     @property
-    def state(self) -> str:
-        """Return the current state."""
-        if self._device_state().get(f"IdleZone{self.zone_index}", False):
-            return ZONE_STATE_IDLE
+    def status(self) -> str:
+        """Return the current status."""
+        state = self._device_state()
+        if state is None:
+            return ZONE_STATUS_UNKNOWN
+        if state.get(f"IdleZone{self.zone_index}", False):
+            return ZONE_STATUS_IDLE
 
-        if len(self.operation_modes) == 1:
-            return ZONE_STATE_HEAT
+        op_mode = self.operation_mode
+        if op_mode == ZONE_OPERATION_MODE_HEAT:
+            return ZONE_STATUS_HEAT
+        if op_mode == ZONE_OPERATION_MODE_COOL:
+            return ZONE_STATUS_COOL
 
-        return ZONE_STATE_UNKNOWN
+        return ZONE_STATUS_UNKNOWN
 
     @property
     def room_temperature(self) -> float:
