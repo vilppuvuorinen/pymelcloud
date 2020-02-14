@@ -13,23 +13,23 @@ PROPERTY_ZONE_2_OPERATION_MODE = "zone_2_operation_mode"
 OPERATION_MODE_AUTO = "auto"
 OPERATION_MODE_FORCE_HOT_WATER = "force_hot_water"
 
-STATE_OFF = "off"
-STATE_HEAT = "heat"
-STATE_IDLE = "idle"
-STATE_COOL = "cool"
-STATE_DEFROST = "defrost"
-STATE_STANDBY = "standby"
-STATE_LEGIONELLA = "legionella"
-STATE_UNKNOWN = "unknown"
+STATUS_OFF = "off"
+STATUS_HEAT_WATER = "heat_water"
+STATUS_HEAT_ZONES = "heat_zones"
+STATUS_COOL = "cool"
+STATUS_DEFROST = "defrost"
+STATUS_STANDBY = "standby"
+STATUS_LEGIONELLA = "legionella"
+STATUS_UNKNOWN = "unknown"
 
 _STATE_LOOKUP = {
-    0: STATE_OFF,
-    1: STATE_HEAT,
-    2: STATE_IDLE,
-    3: STATE_COOL,
-    4: STATE_DEFROST,
-    5: STATE_STANDBY,
-    6: STATE_LEGIONELLA,
+    0: STATUS_OFF,
+    1: STATUS_HEAT_WATER,
+    2: STATUS_HEAT_ZONES,
+    3: STATUS_COOL,
+    4: STATUS_DEFROST,
+    5: STATUS_STANDBY,
+    6: STATUS_LEGIONELLA,
 }
 
 
@@ -164,10 +164,10 @@ class AtwDevice(Device):
             state["SetTemperatureZone2"] = value
             flags = flags | 34359738880
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
-            # TODO: Apply changes
+            # Captures required to implement
             pass
         elif key == PROPERTY_ZONE_2_OPERATION_MODE:
-            # TODO: Apply changes
+            # Captures required to implement
             pass
         else:
             raise ValueError(f"Cannot set {key}, invalid property")
@@ -226,11 +226,11 @@ class AtwDevice(Device):
         return _zones
 
     @property
-    def state(self) -> Optional[str]:
+    def status(self) -> Optional[str]:
         """Return current state."""
         if self._state is None:
             return None
-        return _STATE_LOOKUP.get(self._state.get("OperationMode", -1), STATE_UNKNOWN)
+        return _STATE_LOOKUP.get(self._state.get("OperationMode", -1), STATUS_UNKNOWN)
 
     @property
     def operation_mode(self) -> Optional[str]:
