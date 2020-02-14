@@ -80,7 +80,7 @@ class Client:
         self._conf_update_interval = conf_update_interval
         self._device_set_debounce = device_set_debounce
 
-        self._last_update = None
+        self._last_conf_update = None
         self._device_confs = []
         self._account = None
 
@@ -145,12 +145,12 @@ class Client:
         """
         now = datetime.now()
         if (
-            self._last_update is not None
-            and now - self._last_update < self._conf_update_interval
+            self._last_conf_update is not None
+            and now - self._last_conf_update < self._conf_update_interval
         ):
             return None
 
-        self._last_update = now
+        self._last_conf_update = now
         await self._fetch_user_details()
         await self._fetch_device_confs()
 
