@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix detached ATW zone state.
 - Convert zone operation mode set to no-op instead of raising `ValueError`.
 - Fix ATW zone name fallback.
+- Add `None` state guards to ATW zone properties.
 
 ## [2.0.0] - 2020-02-08
 ### Added

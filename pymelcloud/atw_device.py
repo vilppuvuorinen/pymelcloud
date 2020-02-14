@@ -68,9 +68,12 @@ class Zone:
         return zone_name
 
     @property
-    def prohibit(self) -> bool:
+    def prohibit(self) -> Optional[bool]:
         """Return prohibit flag of the zone."""
-        return self._device_state().get(f"ProhibitZone{self.zone_index}")
+        state = self._device_state()
+        if state is None:
+            return None
+        return state.get(f"ProhibitZone{self.zone_index}")
 
     @property
     def status(self) -> str:
@@ -90,14 +93,20 @@ class Zone:
         return ZONE_STATUS_UNKNOWN
 
     @property
-    def room_temperature(self) -> float:
+    def room_temperature(self) -> Optional[float]:
         """Return room temperature."""
-        return self._device_state().get(f"RoomTemperatureZone{self.zone_index}")
+        state = self._device_state()
+        if state is None:
+            return None
+        return state.get(f"RoomTemperatureZone{self.zone_index}")
 
     @property
-    def target_temperature(self) -> float:
+    def target_temperature(self) -> Optional[float]:
         """Return target temperature."""
-        return self._device_state().get(f"SetTemperatureZone{self.zone_index}")
+        state = self._device_state()
+        if state is None:
+            return None
+        return state.get(f"SetTemperatureZone{self.zone_index}")
 
     async def set_target_temperature(self, target_temperature):
         """Set target temperature for this zone."""
