@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Add `temperature_increment` property to Device.
+- Add `temperature_increment` property to `Device`.
+- Add `has_energy_consumed_meter` property to `AtaDevice`.
 
 ### Changed
 - Forward AtaDevice `target_temperature_step` calls to

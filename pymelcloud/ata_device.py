@@ -164,6 +164,11 @@ class AtaDevice(Device):
         state[EFFECTIVE_FLAGS] = flags
 
     @property
+    def has_energy_consumed_meter(self) -> bool:
+        """Return True if the device has an energy consumption meter."""
+        return self._device_conf.get("Device", {}).get("HasEnergyConsumedMeter", False)
+
+    @property
     def total_energy_consumed(self) -> Optional[float]:
         """Return total consumed energy as kWh."""
         if self._device_conf is None:
