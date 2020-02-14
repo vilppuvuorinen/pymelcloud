@@ -51,10 +51,10 @@ one has the time to go through the source.
 * `outside_temperature`
 * `zones`
   * `name`
-  * `state`
+  * `status`
   * `room_temperature`
   * `target_temperature`
-* `state`
+* `status`
 * `operation_mode`
 * available `operation_modes`
 
