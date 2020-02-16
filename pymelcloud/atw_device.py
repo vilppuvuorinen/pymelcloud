@@ -61,7 +61,11 @@ class Zone:
 
     @property
     def name(self) -> Optional[str]:
-        """Return zone name if defined."""
+        """Return zone name.
+
+        If a name is not defined, a name is generated using format "Zone n" where "n"
+        is the number of the zone.
+        """
         zone_name = self._device_conf().get(f"Zone{self.zone_index}Name")
         if zone_name is None:
             return f"Zone {self.zone_index}"
@@ -77,7 +81,11 @@ class Zone:
 
     @property
     def status(self) -> str:
-        """Return the current status."""
+        """Return the current status.
+
+        This is a Air-to-Water device specific property. The value can be - depending
+        on the device capabilities - "heat", "cool" or "idle".
+        """
         state = self._device_state()
         if state is None:
             return ZONE_STATUS_UNKNOWN
@@ -118,14 +126,26 @@ class Zone:
 
     @property
     def operation_mode(self) -> str:
-        """Return current operation mode."""
+        """Return current operation mode.
+
+        This value is not backed by "OperationMode" property of the zone. MELCloud
+        uses "OperationMode" for the temperature control mode ("Room", "Flow",
+        "Curve"). Instead this property indicates whether the device is set to heat
+        or cool.
+        """
         if len(self.operation_modes) == 1:
             return ZONE_OPERATION_MODE_HEAT
         return ZONE_OPERATION_MODE_UNKNOWN
 
     @property
     def operation_modes(self) -> List[str]:
-        """Return list of available operation modes."""
+        """Return list of available operation modes.
+
+        This value is not backed by "OperationMode" property of the zone. MELCloud
+        uses "OperationMode" for the temperature control mode ("Room", "Flow",
+        "Curve"). Instead this property indicates whether the device is set to heat
+        or cool.
+        """
         modes = [ZONE_OPERATION_MODE_HEAT]
         if self._device_conf().get("Device", {}).get("CanCool", False):
             modes.append(ZONE_OPERATION_MODE_COOL)
@@ -192,12 +212,14 @@ class AtwDevice(Device):
     def target_tank_temperature_min(self) -> Optional[float]:
         """Return minimum target tank water temperature.
 
-        The minimum value is not readily available from the API response. MinSetTemperature initially
-        looks like a good candidate, but the values of MinSetTemperature and MaxSetTemperature are both
-        10°C lower than the values displayed in MELCloud UI.
+        The minimum value is not readily available from the API response.
+        MinSetTemperature initially looks like a good candidate, but the values of
+        MinSetTemperature and MaxSetTemperature are both 10°C lower than the values
+        displayed in MELCloud UI.
 
-        Given these circumstances the minimum is calculated by subtracting the difference of
-        MaxSetTemperature and MinSetTemperature from the MaxTankTemperature.
+        Given these circumstances the minimum is calculated by subtracting the
+        difference of MaxSetTemperature and MinSetTemperature from the
+        MaxTankTemperature.
         """
         device = self._device_conf.get("Device", {})
         return device.get("MaxTankTemperature", 60.0) - (
@@ -213,16 +235,20 @@ class AtwDevice(Device):
 
     @property
     def outside_temperature(self) -> Optional[float]:
-        """Return outdoor temperature reported by the device."""
+        """Return outdoor temperature reported by the device.
+
+        Outside temperature sensor cannot be complimented on its precision or sample
+        rate. The value is reported using 1°C (2°F?) accuracy and updated every 2
+        hours.
+        """
         if self._state is None:
             return None
         return self._state.get("OutdoorTemperature")
 
     @property
     def zones(self) -> Optional[List[Zone]]:
-        """
-        Return zones controlled by this device.
-        
+        """Return zones controlled by this device.
+
         Zones without a thermostat are not returned.
         """
         _zones = []
@@ -238,7 +264,11 @@ class AtwDevice(Device):
 
     @property
     def status(self) -> Optional[str]:
-        """Return current state."""
+        """Return current state.
+
+        This is a Air-to-Water device specific property. MELCloud uses "OperationMode"
+        to indicate what the device is currently doing to meet its control values.
+        """
         if self._state is None:
             return STATUS_UNKNOWN
         return _STATE_LOOKUP.get(self._state.get("OperationMode", -1), STATUS_UNKNOWN)

@@ -1,4 +1,4 @@
-"""MELCloud module"""
+"""MELCloud client library."""
 from datetime import timedelta
 from typing import Dict, List, Optional
 
@@ -20,9 +20,8 @@ async def login(
     conf_update_interval: Optional[timedelta] = timedelta(minutes=5),
     device_set_debounce: Optional[timedelta] = timedelta(seconds=1),
 ) -> str:
-    """
-    Log in to MELCloud with given credentials.
-    
+    """Log in to MELCloud with given credentials.
+
     Returns access token.
     """
     _client = await _login(
@@ -42,7 +41,16 @@ async def get_devices(
     conf_update_interval=timedelta(minutes=5),
     device_set_debounce=timedelta(seconds=1),
 ) -> Dict[str, List[Device]]:
-    """Initialize Devices available with the token."""
+    """Initialize Devices available with the token.
+
+    The devices share a the same Client instance and pool config fetches. The devices
+    should be fetched only once during application life cycle to leverage the request
+    pooling and rate limits.
+
+    Keyword arguments:
+        conf_update_interval -- rate limit for fetching device confs. (default = 5 min)
+        device_set_debounce -- debounce time for writing device state. (default = 1 s)
+    """
     _client = _Client(
         token,
         session,

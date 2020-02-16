@@ -6,3 +6,5 @@ pymelcloud.egg-info/
 .vscode
 .tox
 .coverage
+.mypy_cache
+venv

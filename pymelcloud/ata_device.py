@@ -139,8 +139,8 @@ class AtaDevice(Device):
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.
 
-    Used for property validation, do not modify device state.    
-    """
+        Used for property validation, do not modify device state.
+        """
         flags = state.get(EFFECTIVE_FLAGS, 0)
 
         if key == PROPERTY_TARGET_TEMPERATURE:
@@ -170,7 +170,11 @@ class AtaDevice(Device):
 
     @property
     def total_energy_consumed(self) -> Optional[float]:
-        """Return total consumed energy as kWh."""
+        """Return total consumed energy as kWh.
+
+        The update interval is extremely slow and inconsistent. Empirical evidence
+        suggests can vary between 1h 30min and 3h.
+        """
         if self._device_conf is None:
             return None
         device = self._device_conf.get("Device", {})
@@ -200,9 +204,7 @@ class AtaDevice(Device):
 
     @property
     def target_temperature_min(self) -> Optional[float]:
-        """
-        Return maximum target temperature for the currently active operation mode.
-        """
+        """Return maximum target temperature for the currently active operation mode."""
         if self._state is None:
             return None
         return self._device_conf.get("Device", {}).get(
@@ -211,9 +213,7 @@ class AtaDevice(Device):
 
     @property
     def target_temperature_max(self) -> Optional[float]:
-        """
-        Return maximum target temperature for the currently active operation mode.
-        """
+        """Return maximum target temperature for the currently active operation mode."""
         if self._state is None:
             return None
         return self._device_conf.get("Device", {}).get(
@@ -251,14 +251,34 @@ class AtaDevice(Device):
 
     @property
     def fan_speed(self) -> Optional[str]:
-        """Return currently active fan speed."""
+        """Return currently active fan speed.
+
+        The argument must be on of the fan speeds returned by fan_speeds.
+        """
         if self._state is None:
             return None
         return _fan_speed_from(self._state.get("SetFanSpeed"))
 
     @property
     def fan_speeds(self) -> Optional[List[str]]:
-        """Return available fan speeds."""
+        """Return available fan speeds.
+
+        The supported fan speeds vary from device to device. The available modes are
+        read from the Device capability attributes.
+
+        For example, a 5 speed device with auto fan speed would produce the following
+        list (formatted '"[pymelcloud]" -- "[device controls]"')
+
+        - "auto" -- "auto"
+        - "1" -- "silent"
+        - "2" -- "1"
+        - "3" -- "2"
+        - "4" -- "3"
+        - "5" -- "4"
+
+        MELCloud is not aware of the device type making it infeasible to match the
+        fan speed names with the device documentation.
+        """
         if self._state is None:
             return None
         speeds = []

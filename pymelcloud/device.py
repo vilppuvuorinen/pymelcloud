@@ -5,7 +5,12 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.client import Client
-from pymelcloud.const import DEVICE_TYPE_LOOKUP, UNIT_TEMP_CELSIUS, UNIT_TEMP_FAHRENHEIT
+from pymelcloud.const import (
+    DEVICE_TYPE_LOOKUP,
+    DEVICE_TYPE_UNKNOWN,
+    UNIT_TEMP_CELSIUS,
+    UNIT_TEMP_FAHRENHEIT,
+)
 
 PROPERTY_POWER = "power"
 
@@ -17,14 +22,20 @@ class Device(ABC):
     """MELCloud base device representation."""
 
     def __init__(
-        self, device_conf: dict, client: Client, set_debounce=timedelta(seconds=1),
+        self,
+        device_conf: Dict[str, Any],
+        client: Client,
+        set_debounce=timedelta(seconds=1),
     ):
+        """Initialize a device."""
         self.device_id = device_conf.get("DeviceID")
         self.building_id = device_conf.get("BuildingID")
         self.mac = device_conf.get("MacAddress")
         self.serial = device_conf.get("SerialNumber")
 
-        self._use_fahrenheit = client.account.get("UseFahrenheit")
+        self._use_fahrenheit = False
+        if client.account is not None:
+            self._use_fahrenheit = client.account.get("UseFahrenheit", False)
 
         self._device_conf = device_conf
         self._state = None
@@ -33,21 +44,25 @@ class Device(ABC):
 
         self._set_debounce = set_debounce
         self._set_event = asyncio.Event()
-        self._write_task = None
-        self._pending_writes = {}
+        self._write_task: Optional[asyncio.Future[None]] = None
+        self._pending_writes: Dict[str, Any] = {}
 
     @abstractmethod
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.
 
-    Used for property validation, do not modify device state.    
-    """
+        Used for property validation, do not modify device state.
+        """
         pass
 
     async def update(self):
-        """
-        Fetch state of the device from MELCloud. List of device_confs is also
-        updated.
+        """Fetch state of the device from MELCloud.
+
+        List of device_confs is also updated.
+
+        Please, rate limit calls to this method. Polling every 60 seconds should be
+        enough to catch all events at the rate they are coming in to MELCloud with the
+        exception of changes performed through MELCloud directly.
         """
         await self._client.update_confs()
         self._device_conf = next(
@@ -62,7 +77,7 @@ class Device(ABC):
             self._device_units = await self._client.fetch_device_units(self)
 
     async def set(self, properties: Dict[str, Any]):
-        """Schedule property write to MELCloud"""
+        """Schedule property write to MELCloud."""
         if self._write_task is not None:
             self._write_task.cancel()
 
@@ -98,13 +113,14 @@ class Device(ABC):
     @property
     def name(self) -> str:
         """Return device name."""
-        return self._device_conf.get("DeviceName")
+        return self._device_conf["DeviceName"]
 
     @property
     def device_type(self) -> str:
         """Return type of the device."""
         return DEVICE_TYPE_LOOKUP.get(
-            self._device_conf.get("Device", {}).get("DeviceType")
+            self._device_conf.get("Device", {}).get("DeviceType", -1),
+            DEVICE_TYPE_UNKNOWN,
         )
 
     @property
@@ -138,9 +154,9 @@ class Device(ABC):
 
     @property
     def last_seen(self) -> Optional[datetime]:
-        """
-        Return timestamp of the last communication between MELCloud and
-        the device in UTC.
+        """Return timestamp of the last communication from device to MELCloud.
+
+        The timestamp is in UTC.
         """
         if self._state is None:
             return None
