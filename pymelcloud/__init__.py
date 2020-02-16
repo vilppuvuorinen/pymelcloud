@@ -13,24 +13,13 @@ from pymelcloud.device import Device
 
 
 async def login(
-    email: str,
-    password: str,
-    session: Optional[ClientSession] = None,
-    *,
-    conf_update_interval: Optional[timedelta] = timedelta(minutes=5),
-    device_set_debounce: Optional[timedelta] = timedelta(seconds=1),
+    email: str, password: str, session: Optional[ClientSession] = None,
 ) -> str:
     """Log in to MELCloud with given credentials.
 
     Returns access token.
     """
-    _client = await _login(
-        email,
-        password,
-        session,
-        conf_update_interval=conf_update_interval,
-        device_set_debounce=device_set_debounce,
-    )
+    _client = await _login(email, password, session,)
     return _client.token
 
 
