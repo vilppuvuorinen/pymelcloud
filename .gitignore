@@ -4,3 +4,5 @@ dist/
 pymelcloud.egg-info/
 .idea
 .vscode
+.tox
+.coverage
