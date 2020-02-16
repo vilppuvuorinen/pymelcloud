@@ -1,8 +1,29 @@
 # pymelcloud
 
-This is a package for interacting with MELCloud and Mitsubishi 
-Electric devices. It's still a little rough all around and the
-documentation is a joke.
+[![PyPI version](https://badge.fury.io/py/pymelcloud.svg)](https://badge.fury.io/py/pymelcloud) [![Build Status](https://travis-ci.org/vilppuvuorinen/pymelcloud.svg?branch=master)](https://travis-ci.org/vilppuvuorinen/pymelcloud) [![Coverage Status](https://coveralls.io/repos/github/vilppuvuorinen/pymelcloud/badge.svg?branch=ci-things)](https://coveralls.io/github/vilppuvuorinen/pymelcloud?branch=master)
+
+This is a package for interacting with MELCloud and Mitsubishi Electric
+devices. It's still a little rough around the edges and the documentation
+is non-existent.
+
+The goals for this package are:
+
+* To control and automate devices, not to configure them.
+* Handle device capabilities behind the scenes.
+* Make the different device types behave in predictable way.
+
+## Notes on usage
+
+There are built-in rate limits and debouncing for most of the methods
+with the exception of the `Device` `update` method.
+
+* Initialize devices for each account only once during application
+runtime.
+* Make sure the `update` calls for each `Device` are rate limited. A 60
+second update interval is a good starting point. Going much faster will
+exceed the expected load for MELCloud and can potentially cause
+availability issues.
+* Make absolutely sure the `update` calls are rate limited.
 
 ## Supported devices
 
@@ -83,7 +104,7 @@ converts Wh to kWh.
 ## Write
 
 Writes are applied after a debounce and update the local state once
-completed. The physical device does not register the changes 
+completed. The physical device does not register the changes
 immediately due to the 60 second polling interval.
 
 Writable properties are:
