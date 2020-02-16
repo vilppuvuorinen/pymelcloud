@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Return same values from `get_devices` and `Device` `device_type`.
+- Use `MaxTankTemperature` as maximum target tank temperature and calculate minimum
+using the previously used `MaxSetTemperature` and `MinSetTemperature`.
 
 ## [2.1.0] - 2020-02-14
 ### Added
