@@ -240,7 +240,7 @@ class AtwDevice(Device):
     def status(self) -> Optional[str]:
         """Return current state."""
         if self._state is None:
-            return None
+            return STATUS_UNKNOWN
         return _STATE_LOOKUP.get(self._state.get("OperationMode", -1), STATUS_UNKNOWN)
 
     @property

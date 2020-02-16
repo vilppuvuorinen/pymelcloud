@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `MaxTankTemperature` as maximum target tank temperature and calculate minimum
 using the previously used `MaxSetTemperature` and `MinSetTemperature`.
 
+### Fixed
+- Make `AtwDevice` `status` consistent in out of sync state.
+
 ## [2.1.0] - 2020-02-14
 ### Added
 - Add `temperature_increment` property to `Device`.
