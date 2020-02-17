@@ -9,8 +9,8 @@ BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
 def _headers(token: str) -> Dict[str, str]:
     return {
-        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) "
-        "Gecko/20100101 Firefox/71.0",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:73.0) "
+        "Gecko/20100101 Firefox/73.0",
         "Accept": "application/json, text/javascript, */*; q=0.01",
         "Accept-Language": "en-US,en;q=0.5",
         "Accept-Encoding": "gzip, deflate, br",
