@@ -5,6 +5,7 @@ from pymelcloud.device import EFFECTIVE_FLAGS, Device
 
 PROPERTY_TARGET_TANK_TEMPERATURE = "target_tank_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
+PROPERTY_HOLIDAY_MODE = "holiday_mode"
 PROPERTY_ZONE_1_TARGET_TEMPERATURE = "zone_1_target_temperature"
 PROPERTY_ZONE_2_TARGET_TEMPERATURE = "zone_2_target_temperature"
 PROPERTY_ZONE_1_OPERATION_MODE = "zone_1_operation_mode"
@@ -173,16 +174,19 @@ class AtwDevice(Device):
 
         if key == PROPERTY_TARGET_TANK_TEMPERATURE:
             state["SetTankWaterTemperature"] = value
-            flags = flags | 281474976710688
+            flags = flags | 0x1000000000020
         elif key == PROPERTY_OPERATION_MODE:
             state["ForcedHotWaterMode"] = value == OPERATION_MODE_FORCE_HOT_WATER
-            flags = flags | 65536
+            flags = flags | 0x10000
+        elif key == PROPERTY_HOLIDAY_MODE:
+            state["HolidayMode"] = value is True
+            flags = flags | 0x20000
         elif key == PROPERTY_ZONE_1_TARGET_TEMPERATURE:
             state["SetTemperatureZone1"] = value
-            flags = flags | 8589934720
+            flags = flags | 0x200000080
         elif key == PROPERTY_ZONE_2_TARGET_TEMPERATURE:
             state["SetTemperatureZone2"] = value
-            flags = flags | 34359738880
+            flags = flags | 0x800000200
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
             # Captures required to implement
             pass
@@ -229,7 +233,10 @@ class AtwDevice(Device):
 
     @property
     def target_tank_temperature_max(self) -> Optional[float]:
-        """Return maximum target tank water temperature."""
+        """Return maximum target tank water temperature.
+
+        This value can be set using PROPERTY_TARGET_TANK_TEMPERATURE.
+        """
         device = self._device_conf.get("Device", {})
         return device.get("MaxTankTemperature")
 
@@ -275,7 +282,10 @@ class AtwDevice(Device):
 
     @property
     def operation_mode(self) -> Optional[str]:
-        """Return active operation mode."""
+        """Return active operation mode.
+
+        This value can be set using PROPERTY_OPERATION_MODE.
+        """
         if self._state is None:
             return None
         if self._state.get("ForcedHotWaterMode", False):
@@ -286,3 +296,14 @@ class AtwDevice(Device):
     def operation_modes(self) -> List[str]:
         """Return available operation modes."""
         return [OPERATION_MODE_AUTO, OPERATION_MODE_FORCE_HOT_WATER]
+
+    @property
+    def holiday_mode(self) -> Optional[bool]:
+        """Return holiday mode status.
+
+        The actual effects are configured through the device HMI. This value can be set
+        using PROPERTY_HOLIDAY_MODE.
+        """
+        if self._state is None:
+            return None
+        return self._state.get("HolidayMode", False)
