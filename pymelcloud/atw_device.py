@@ -5,7 +5,6 @@ from pymelcloud.device import EFFECTIVE_FLAGS, Device
 
 PROPERTY_TARGET_TANK_TEMPERATURE = "target_tank_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
-PROPERTY_HOLIDAY_MODE = "holiday_mode"
 PROPERTY_ZONE_1_TARGET_TEMPERATURE = "zone_1_target_temperature"
 PROPERTY_ZONE_2_TARGET_TEMPERATURE = "zone_2_target_temperature"
 PROPERTY_ZONE_1_OPERATION_MODE = "zone_1_operation_mode"
@@ -178,9 +177,6 @@ class AtwDevice(Device):
         elif key == PROPERTY_OPERATION_MODE:
             state["ForcedHotWaterMode"] = value == OPERATION_MODE_FORCE_HOT_WATER
             flags = flags | 0x10000
-        elif key == PROPERTY_HOLIDAY_MODE:
-            state["HolidayMode"] = value is True
-            flags = flags | 0x20000
         elif key == PROPERTY_ZONE_1_TARGET_TEMPERATURE:
             state["SetTemperatureZone1"] = value
             flags = flags | 0x200000080
@@ -299,11 +295,7 @@ class AtwDevice(Device):
 
     @property
     def holiday_mode(self) -> Optional[bool]:
-        """Return holiday mode status.
-
-        The actual effects are configured through the device HMI. This value can be set
-        using PROPERTY_HOLIDAY_MODE.
-        """
+        """Return holiday mode status."""
         if self._state is None:
             return None
         return self._state.get("HolidayMode", False)

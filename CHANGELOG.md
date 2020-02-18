@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update `User-Agent`.
 
+### Removed
+- Remove `holiday_mode` set logic after testing with real devices.
+
 ## [2.3.0] - 2020-02-17
 ### Added
 - Add a settable `holiday_mode` property to `AtwDevice`.
