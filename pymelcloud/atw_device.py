@@ -13,7 +13,7 @@ PROPERTY_ZONE_2_OPERATION_MODE = "zone_2_operation_mode"
 OPERATION_MODE_AUTO = "auto"
 OPERATION_MODE_FORCE_HOT_WATER = "force_hot_water"
 
-STATUS_OFF = "off"
+STATUS_IDLE = "idle"
 STATUS_HEAT_WATER = "heat_water"
 STATUS_HEAT_ZONES = "heat_zones"
 STATUS_COOL = "cool"
@@ -23,7 +23,7 @@ STATUS_LEGIONELLA = "legionella"
 STATUS_UNKNOWN = "unknown"
 
 _STATE_LOOKUP = {
-    0: STATUS_OFF,
+    0: STATUS_IDLE,
     1: STATUS_HEAT_WATER,
     2: STATUS_HEAT_ZONES,
     3: STATUS_COOL,

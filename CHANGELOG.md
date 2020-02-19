@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Update `User-Agent`.
+- Rename Atw status `"off"` to `"idle"`.
 
 ### Removed
 - Remove `holiday_mode` set logic after testing with real devices.
