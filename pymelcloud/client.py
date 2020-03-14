@@ -48,7 +48,7 @@ def _headers(token: str) -> Dict[str, str]:
     }
 
 
-async def _do_login(_session: ClientSession, email: str, password: str, language: Optional[int] = 0, persist_login: Optional[bool] = True):
+async def _do_login(_session: ClientSession, email: str, password: str, language: int = 0, persist_login: bool = True):
     body = {
         "Email": email,
         "Password": password,
@@ -71,13 +71,11 @@ async def login(
     *,
     conf_update_interval: Optional[timedelta] = None,
     device_set_debounce: Optional[timedelta] = None,
-    language: Optional[str] = "EN",
-    persist_login: Optional[bool] = True,
+    language: str = "EN",
+    persist_login: bool = True,
 ):
     """Login using email and password."""
-    lang = 0
-    if language:
-        lang = LANGUAGES.get(language, 0)
+    lang = LANGUAGES.get(language, 0)
     
     if session:
         response = await _do_login(session, email, password, lang, persist_login)
