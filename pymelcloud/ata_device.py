@@ -166,6 +166,8 @@ class AtaDevice(Device):
     @property
     def has_energy_consumed_meter(self) -> bool:
         """Return True if the device has an energy consumption meter."""
+        if self._device_conf is None:
+            return False
         return self._device_conf.get("Device", {}).get("HasEnergyConsumedMeter", False)
 
     @property
@@ -182,6 +184,50 @@ class AtaDevice(Device):
         if reading is None:
             return None
         return reading / 1000.0
+
+    @property
+    def wifi_signal(self) -> Optional[int]:
+        """Return wifi signal in dBm (negative value)."""
+        if self._device_conf is None:
+            return None
+        device = self._device_conf.get("Device", {})
+        reading = device.get("WifiSignalStrength", None)
+        if reading is None:
+            return None
+        return reading
+
+    @property
+    def has_error(self) -> bool:
+        """Return True if the device has error state."""
+        if self._device_conf is None:
+            return False
+        return self._device_conf.get("Device", {}).get("HasError", False)
+
+    @property
+    def error_code(self) -> Optional[str]:
+        """Return error_code.
+
+        This is a property that probably should be checked if "has_error" = true
+        Till now I have a fixed code = 8000 and never have error on the units
+        """
+        if self._device_conf is None:
+            return None
+        device = self._device_conf.get("Device", {})
+        reading = device.get("ErrorCode", None)
+        if reading is None:
+            return None
+        return reading
+
+    @property
+    def presets(self) -> List[Dict[Any, Any]]:
+        """Return presets configuration (preset created using melcloud app)."""
+        retval = []
+        if self._device_conf is not None:
+            presets_conf = self._device_conf.get("Presets", {})
+            for p in presets_conf:
+                retval.append(p)
+
+        return retval
 
     @property
     def room_temperature(self) -> Optional[float]:
@@ -314,8 +360,21 @@ class AtaDevice(Device):
             H_VANE_POSITION_3,
             H_VANE_POSITION_4,
             H_VANE_POSITION_5,
-            H_VANE_POSITION_SPLIT,
         ]
+        
+        # My model do not have split function, and the 2 property below are set to false
+        # But at the moment I don't know the correct property for check split, so I leave this code commented
+        
+        #if device.get("HasWideVane", False):
+        #    positions.append(H_VANE_POSITION_SPLIT)
+
+        ####### Or #######
+
+        #if device.get("ModelIsAirCurtain", False):
+        #    positions.append(H_VANE_POSITION_SPLIT)
+
+        positions.append(H_VANE_POSITION_SPLIT)
+        
         if device.get("SwingFunction", False):
             positions.append(H_VANE_POSITION_SWING)
 
