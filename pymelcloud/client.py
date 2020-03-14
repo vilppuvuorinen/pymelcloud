@@ -48,7 +48,7 @@ def _headers(token: str) -> Dict[str, str]:
     }
 
 
-async def _do_login(_session: ClientSession, email: str, password: str, language: int, persist_login: bool):
+async def _do_login(_session: ClientSession, email: str, password: str, language: Optional[int] = 0, persist_login: Optional[bool] = True):
     body = {
         "Email": email,
         "Password": password,
