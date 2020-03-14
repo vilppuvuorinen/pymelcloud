@@ -6,6 +6,34 @@ from aiohttp import ClientSession
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 
+LANGUAGES = {
+    'EN' : 0,
+    'BG' : 1,
+    'CS' : 2,
+    'DA' : 3,
+    'DE' : 4,
+    'ET' : 5,
+    'ES' : 6,
+    'FR' : 7,
+    'HY' : 8,
+    'LV' : 9,
+    'LT' : 10,
+    'HU' : 11,
+    'NL' : 12,
+    'NO' : 13,
+    'PL' : 14,
+    'PT' : 15,
+    'RU' : 16,
+    'FI' : 17,
+    'SV' : 18,
+    'IT' : 19,
+    'UK' : 20,
+    'TR' : 21,
+    'EL' : 22,
+    'HR' : 23,
+    'RO' : 24,
+    'SL' : 25,
+}
 
 def _headers(token: str) -> Dict[str, str]:
     return {
@@ -20,13 +48,13 @@ def _headers(token: str) -> Dict[str, str]:
     }
 
 
-async def _do_login(_session: ClientSession, email: str, password: str):
+async def _do_login(_session: ClientSession, email: str, password: str, language: int, persist_login: bool):
     body = {
         "Email": email,
         "Password": password,
-        "Language": 0,
+        "Language": language,
         "AppVersion": "1.19.1.1",
-        "Persist": True,
+        "Persist": persist_login,
         "CaptchaResponse": None,
     }
 
@@ -43,13 +71,19 @@ async def login(
     *,
     conf_update_interval: Optional[timedelta] = None,
     device_set_debounce: Optional[timedelta] = None,
+    language: Optional[str] = "EN",
+    persist_login: Optional[bool] = True,
 ):
     """Login using email and password."""
+    lang = 0
+    if language:
+        lang = LANGUAGES.get(language, 0)
+    
     if session:
-        response = await _do_login(session, email, password)
+        response = await _do_login(session, email, password, lang, persist_login)
     else:
         async with ClientSession() as _session:
-            response = await _do_login(_session, email, password)
+            response = await _do_login(_session, email, password, lang, persist_login)
 
     return Client(
         response.get("LoginData").get("ContextKey"),
