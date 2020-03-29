@@ -124,15 +124,14 @@ class Client:
             for entry in entries:
                 new_devices = new_devices + entry["Structure"]["Devices"]
 
-                # This loopyboi is most likely unnecessary. I'll just leave it here
-                # for future generations to marvel at.
-                for floor in entry["Structure"]["Floors"]:
-                    for device in floor["Devices"]:
-                        new_devices.append(device)
+                for area in entry["Structure"]["Areas"]:
+                    new_devices = new_devices + area["Devices"]
 
-                    for areas in floor["Areas"]:
-                        for device in areas["Devices"]:
-                            new_devices.append(device)
+                for floor in entry["Structure"]["Floors"]:
+                    new_devices = new_devices + floor["Devices"]
+
+                    for area in floor["Areas"]:
+                        new_devices = new_devices + area["Devices"]
 
             visited = set()
             self._device_confs = [
