@@ -62,7 +62,10 @@ async def test_1zone():
     assert zones[0].zone_index == 1
     assert zones[0].room_temperature is None
     assert zones[0].target_temperature is None
-    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
+    assert zones[0].flow_temperature == 25.0
+    assert zones[0].return_temperature == 25.0
+    assert zones[0].target_flow_temperature is None
+    assert zones[0].operation_mode is None
     assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[0].status == ZONE_STATUS_UNKNOWN
 
@@ -76,6 +79,7 @@ async def test_1zone():
 
     assert zones[0].room_temperature == 27.0
     assert zones[0].target_temperature == 30
+    assert zones[0].target_flow_temperature == 60.0
     assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
     assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[0].status == ZONE_STATUS_HEAT
@@ -108,7 +112,10 @@ async def test_2zone():
     assert zones[0].zone_index == 1
     assert zones[0].room_temperature is None
     assert zones[0].target_temperature is None
-    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
+    assert zones[0].flow_temperature == 25.0
+    assert zones[0].return_temperature == 25.0
+    assert zones[0].target_flow_temperature is None
+    assert zones[0].operation_mode is None
     assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[0].status == ZONE_STATUS_UNKNOWN
 
@@ -116,7 +123,10 @@ async def test_2zone():
     assert zones[1].zone_index == 2
     assert zones[1].room_temperature is None
     assert zones[1].target_temperature is None
-    assert zones[1].operation_mode == ZONE_OPERATION_MODE_HEAT
+    assert zones[1].flow_temperature == 25.0
+    assert zones[1].return_temperature == 25.0
+    assert zones[1].target_flow_temperature is None
+    assert zones[1].operation_mode is None
     assert zones[1].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[1].status == ZONE_STATUS_UNKNOWN
 
@@ -130,12 +140,14 @@ async def test_2zone():
 
     assert zones[0].room_temperature == 20.5
     assert zones[0].target_temperature == 19.5
+    assert zones[0].target_flow_temperature == 25.0
     assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
     assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[0].status == ZONE_STATUS_HEAT
 
     assert zones[1].room_temperature == 19.5
     assert zones[1].target_temperature == 18
+    assert zones[1].target_flow_temperature == 25.0
     assert zones[1].operation_mode == ZONE_OPERATION_MODE_HEAT
     assert zones[1].operation_modes == [ZONE_OPERATION_MODE_HEAT]
     assert zones[1].status == ZONE_STATUS_HEAT

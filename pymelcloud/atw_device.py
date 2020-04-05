@@ -33,9 +33,21 @@ _STATE_LOOKUP = {
 }
 
 
+_ZONE_INT_MODE_HEAT_THERMOSTAT = 0
+_ZONE_INT_MODE_HEAT_FLOW = 1
+_ZONE_INT_MODE_CURVE = 2
+_ZONE_INT_MODE_COOL_THERMOSTAT = 3
+_ZONE_INT_MODE_COOL_FLOW = 4
+
 ZONE_OPERATION_MODE_HEAT = "heat"
 ZONE_OPERATION_MODE_COOL = "cool"
 ZONE_OPERATION_MODE_UNKNOWN = "unknown"
+_ZONE_OPERATION_MODE_LOOKUP = {
+    _ZONE_INT_MODE_HEAT_THERMOSTAT: ZONE_OPERATION_MODE_HEAT,
+    _ZONE_INT_MODE_HEAT_FLOW: ZONE_OPERATION_MODE_HEAT,
+    _ZONE_INT_MODE_COOL_THERMOSTAT: ZONE_OPERATION_MODE_COOL,
+    _ZONE_INT_MODE_COOL_FLOW: ZONE_OPERATION_MODE_COOL,
+}
 
 ZONE_STATUS_HEAT = ZONE_OPERATION_MODE_HEAT
 ZONE_STATUS_IDLE = "idle"
@@ -125,7 +137,37 @@ class Zone:
         await self._device.set({prop: target_temperature})
 
     @property
-    def operation_mode(self) -> str:
+    def flow_temperature(self) -> float:
+        """Return current flow temperature.
+
+        This value is not available in the standard state poll response. The poll
+        update frequency can be a little bit lower that expected.
+        """
+        return self._device_conf()["Device"][f"FlowTemperatureZone{self.zone_index}"]
+
+    @property
+    def return_temperature(self) -> float:
+        """Return current return flow temperature.
+
+        This value is not available in the standard state poll response. The poll
+        update frequency can be a little bit lower that expected.
+        """
+        return self._device_conf()["Device"][f"ReturnTemperatureZone{self.zone_index}"]
+
+    @property
+    def target_flow_temperature(self) -> Optional[float]:
+        """Return target flow temperature."""
+        state = self._device_state()
+        if state is None:
+            return None
+
+        if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
+            return state.get(f"SetHeatFlowTemperatureZone{self.zone_index}")
+
+        return state.get(f"SetCoolFlowTemperatureZone{self.zone_index}")
+
+    @property
+    def operation_mode(self) -> Optional[str]:
         """Return current operation mode.
 
         This value is not backed by "OperationMode" property of the zone. MELCloud
@@ -133,9 +175,14 @@ class Zone:
         "Curve"). Instead this property indicates whether the device is set to heat
         or cool.
         """
-        if len(self.operation_modes) == 1:
-            return ZONE_OPERATION_MODE_HEAT
-        return ZONE_OPERATION_MODE_UNKNOWN
+        state = self._device_state()
+        if state is None:
+            return None
+
+        return _ZONE_OPERATION_MODE_LOOKUP.get(
+            state.get(f"OperationModeZone{self.zone_index}"),
+            ZONE_OPERATION_MODE_UNKNOWN,
+        )
 
     @property
     def operation_modes(self) -> List[str]:
@@ -153,15 +200,11 @@ class Zone:
 
     async def set_operation_mode(self, mode: str):
         """Change operation mode."""
-        if len(self.operation_modes) == 1:
-            raise ValueError("Cannot set operation mode. Only a single mode available.")
+        state = self._device_state()
+        if state is None:
+            return
 
-        # if self.zone_index == 1:
-        #    prop = PROPERTY_ZONE_1_OPERATION_MODE
-        # else:
-        #    prop = PROPERTY_ZONE_2_OPERATION_MODE
-        # await self._device.set({prop: mode})
-        raise ValueError("Cannot set operation mode. Not implemented")
+        raise ValueError("Not implemented")
 
 
 class AtwDevice(Device):
@@ -185,9 +228,11 @@ class AtwDevice(Device):
             flags = flags | 0x800000200
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
             # Captures required to implement
+            # 0x08
             pass
         elif key == PROPERTY_ZONE_2_OPERATION_MODE:
             # Captures required to implement
+            # 0x10
             pass
         else:
             raise ValueError(f"Cannot set {key}, invalid property")
