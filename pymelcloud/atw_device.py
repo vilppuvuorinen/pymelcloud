@@ -258,20 +258,10 @@ class AtwDevice(Device):
     def target_tank_temperature_min(self) -> Optional[float]:
         """Return minimum target tank water temperature.
 
-        The minimum value is not readily available from the API response.
-        MinSetTemperature initially looks like a good candidate, but the values of
-        MinSetTemperature and MaxSetTemperature are both 10°C lower than the values
-        displayed in MELCloud UI.
-
-        Given these circumstances the minimum is calculated by subtracting the
-        difference of MaxSetTemperature and MinSetTemperature from the
-        MaxTankTemperature.
+        The value does not seem to be available on the API. A fixed value is used
+        instead.
         """
-        device = self._device_conf.get("Device", {})
-        return device.get("MaxTankTemperature", 60.0) - (
-            device.get("MaxSetTemperature", 50.0)
-            - device.get("MinSetTemperature", 30.0)
-        )
+        return 40.0
 
     @property
     def target_tank_temperature_max(self) -> Optional[float]:

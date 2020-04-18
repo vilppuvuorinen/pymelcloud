@@ -174,7 +174,7 @@ async def test_2zone_cancool():
     assert device.tank_temperature is None
     assert device.status is STATUS_UNKNOWN
     assert device.target_tank_temperature is None
-    assert device.target_tank_temperature_min == 42
+    assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
     assert device.holiday_mode is None
 
