@@ -161,32 +161,58 @@ class Zone:
 
     @property
     def target_flow_temperature(self) -> Optional[float]:
-        """Return target flow temperature."""
-        state = self._device_state()
-        if state is None:
-            return None
-
-        if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
-            return state.get(f"SetHeatFlowTemperatureZone{self.zone_index}")
-
-        return state.get(f"SetCoolFlowTemperatureZone{self.zone_index}")
-
-    async def set_target_flow_temperature(self, target_flow_temperature):
-        """Set target flow temperature of this zone."""
+        """Return target flow temperature of the currently active operation mode."""
         op_mode = self.operation_mode
         if op_mode is None:
             return None
 
-        if self.zone_index == 1:
-            if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
-                prop = PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE
-            else:
-                prop = PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE
+        if op_mode == ZONE_OPERATION_MODE_HEAT:
+            return self.target_heat_flow_temperature
+        return self.target_cool_flow_temperature
+
+    @property
+    def target_heat_flow_temperature(self) -> Optional[float]:
+        """Return target heat flow temperature."""
+        state = self._device_state()
+        if state is None:
+            return None
+
+        return state.get(f"SetHeatFlowTemperatureZone{self.zone_index}")
+
+    @property
+    def target_cool_flow_temperature(self) -> Optional[float]:
+        """Return target cool flow temperature."""
+        state = self._device_state()
+        if state is None:
+            return None
+
+        return state.get(f"SetCoolFlowTemperatureZone{self.zone_index}")
+
+    async def set_target_flow_temperature(self, target_flow_temperature):
+        """Set target flow temperature for the currently active operation mode."""
+        op_mode = self.operation_mode
+        if op_mode is None:
+            return None
+
+        if op_mode == ZONE_OPERATION_MODE_HEAT:
+            await self.set_target_heat_flow_temperature(target_flow_temperature)
         else:
-            if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
-                prop = PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE
-            else:
-                prop = PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE
+            await self.set_target_cool_flow_temperature(target_flow_temperature)
+
+    async def set_target_heat_flow_temperature(self, target_flow_temperature):
+        """Set target heat flow temperature of this zone."""
+        if self.zone_index == 1:
+            prop = PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE
+        else:
+            prop = PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE
+        await self._device.set({prop: target_flow_temperature})
+
+    async def set_target_cool_flow_temperature(self, target_flow_temperature):
+        """Set target cool flow temperature of this zone."""
+        if self.zone_index == 1:
+            prop = PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE
+        else:
+            prop = PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE
         await self._device.set({prop: target_flow_temperature})
 
     @property
