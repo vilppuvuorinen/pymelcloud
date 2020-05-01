@@ -7,6 +7,10 @@ PROPERTY_TARGET_TANK_TEMPERATURE = "target_tank_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
 PROPERTY_ZONE_1_TARGET_TEMPERATURE = "zone_1_target_temperature"
 PROPERTY_ZONE_2_TARGET_TEMPERATURE = "zone_2_target_temperature"
+PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE = "zone_1_target_heat_flow_temperature"
+PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE = "zone_2_target_heat_flow_temperature"
+PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE = "zone_1_target_heat_cool_temperature"
+PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE = "zone_2_target_heat_cool_temperature"
 PROPERTY_ZONE_1_OPERATION_MODE = "zone_1_operation_mode"
 PROPERTY_ZONE_2_OPERATION_MODE = "zone_2_operation_mode"
 
@@ -167,6 +171,24 @@ class Zone:
 
         return state.get(f"SetCoolFlowTemperatureZone{self.zone_index}")
 
+    async def set_target_flow_temperature(self, target_flow_temperature):
+        """Set target flow temperature of this zone."""
+        op_mode = self.operation_mode
+        if op_mode is None:
+            return None
+
+        if self.zone_index == 1:
+            if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
+                prop = PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE
+            else:
+                prop = PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE
+        else:
+            if self.operation_mode == ZONE_OPERATION_MODE_HEAT:
+                prop = PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE
+            else:
+                prop = PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE
+        await self._device.set({prop: target_flow_temperature})
+
     @property
     def operation_mode(self) -> Optional[str]:
         """Return current operation mode.
@@ -227,6 +249,18 @@ class AtwDevice(Device):
         elif key == PROPERTY_ZONE_2_TARGET_TEMPERATURE:
             state["SetTemperatureZone2"] = value
             flags = flags | 0x800000200
+        elif key == PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE:
+            state["SetHeatFlowTemperatureZone1"] = value
+            flags = flags | 0x1000000000000
+        elif key == PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE:
+            state["SetCoolFlowTemperatureZone1"] = value
+            flags = flags | 0x1000000000000
+        elif key == PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE:
+            state["SetHeatFlowTemperatureZone2"] = value
+            flags = flags | 0x1000000000000
+        elif key == PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE:
+            state["SetCoolFlowTemperatureZone2"] = value
+            flags = flags | 0x1000000000000
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
             # Captures required to implement
             # 0x08
