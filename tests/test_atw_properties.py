@@ -11,8 +11,11 @@ from pymelcloud.atw_device import (
     STATUS_HEAT_WATER,
     STATUS_HEAT_ZONES,
     STATUS_UNKNOWN,
-    ZONE_OPERATION_MODE_COOL,
-    ZONE_OPERATION_MODE_HEAT,
+    ZONE_OPERATION_MODE_COOL_FLOW,
+    ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+    ZONE_OPERATION_MODE_CURVE,
+    ZONE_OPERATION_MODE_HEAT_FLOW,
+    ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
     ZONE_STATUS_HEAT,
     ZONE_STATUS_IDLE,
     ZONE_STATUS_UNKNOWN,
@@ -69,7 +72,11 @@ async def test_1zone():
     assert zones[0].return_temperature == 25.0
     assert zones[0].target_flow_temperature is None
     assert zones[0].operation_mode is None
-    assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[0].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[0].status == ZONE_STATUS_UNKNOWN
 
     await device.update()
@@ -83,8 +90,12 @@ async def test_1zone():
     assert zones[0].room_temperature == 27.0
     assert zones[0].target_temperature == 30
     assert zones[0].target_flow_temperature == 60.0
-    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
-    assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT_FLOW
+    assert zones[0].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[0].status == ZONE_STATUS_HEAT
 
 
@@ -119,7 +130,11 @@ async def test_2zone():
     assert zones[0].return_temperature == 25.0
     assert zones[0].target_flow_temperature is None
     assert zones[0].operation_mode is None
-    assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[0].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[0].status == ZONE_STATUS_UNKNOWN
 
     assert zones[1].name == "Upstairs"
@@ -130,7 +145,11 @@ async def test_2zone():
     assert zones[1].return_temperature == 25.0
     assert zones[1].target_flow_temperature is None
     assert zones[1].operation_mode is None
-    assert zones[1].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[1].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[1].status == ZONE_STATUS_UNKNOWN
 
     await device.update()
@@ -144,15 +163,23 @@ async def test_2zone():
     assert zones[0].room_temperature == 20.5
     assert zones[0].target_temperature == 19.5
     assert zones[0].target_flow_temperature == 25.0
-    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
-    assert zones[0].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT_THERMOSTAT
+    assert zones[0].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[0].status == ZONE_STATUS_HEAT
 
     assert zones[1].room_temperature == 19.5
     assert zones[1].target_temperature == 18
     assert zones[1].target_flow_temperature == 25.0
-    assert zones[1].operation_mode == ZONE_OPERATION_MODE_HEAT
-    assert zones[1].operation_modes == [ZONE_OPERATION_MODE_HEAT]
+    assert zones[1].operation_mode == ZONE_OPERATION_MODE_HEAT_THERMOSTAT
+    assert zones[1].operation_modes == [
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+    ]
     assert zones[1].status == ZONE_STATUS_HEAT
 
 
@@ -190,8 +217,11 @@ async def test_2zone_cancool():
     assert zones[0].target_flow_temperature is None
     assert zones[0].operation_mode is None
     assert zones[0].operation_modes == [
-        ZONE_OPERATION_MODE_HEAT,
-        ZONE_OPERATION_MODE_COOL,
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+        ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+        ZONE_OPERATION_MODE_COOL_FLOW,
     ]
     assert zones[0].status == ZONE_STATUS_UNKNOWN
 
@@ -204,8 +234,11 @@ async def test_2zone_cancool():
     assert zones[1].target_flow_temperature is None
     assert zones[1].operation_mode is None
     assert zones[1].operation_modes == [
-        ZONE_OPERATION_MODE_HEAT,
-        ZONE_OPERATION_MODE_COOL,
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+        ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+        ZONE_OPERATION_MODE_COOL_FLOW,
     ]
     assert zones[1].status == ZONE_STATUS_UNKNOWN
 
@@ -220,19 +253,25 @@ async def test_2zone_cancool():
     assert zones[0].room_temperature == 21.5
     assert zones[0].target_temperature == 20.5
     assert zones[0].target_flow_temperature == 5.0
-    assert zones[0].operation_mode == ZONE_OPERATION_MODE_HEAT
+    assert zones[0].operation_mode == ZONE_OPERATION_MODE_CURVE
     assert zones[0].operation_modes == [
-        ZONE_OPERATION_MODE_HEAT,
-        ZONE_OPERATION_MODE_COOL,
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+        ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+        ZONE_OPERATION_MODE_COOL_FLOW,
     ]
     assert zones[0].status == ZONE_STATUS_IDLE
 
     assert zones[1].room_temperature == 21.0
     assert zones[1].target_temperature == 21.0
     assert zones[1].target_flow_temperature == 5.0
-    assert zones[1].operation_mode == ZONE_OPERATION_MODE_HEAT
+    assert zones[1].operation_mode == ZONE_OPERATION_MODE_CURVE
     assert zones[1].operation_modes == [
-        ZONE_OPERATION_MODE_HEAT,
-        ZONE_OPERATION_MODE_COOL,
+        ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+        ZONE_OPERATION_MODE_HEAT_FLOW,
+        ZONE_OPERATION_MODE_CURVE,
+        ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+        ZONE_OPERATION_MODE_COOL_FLOW,
     ]
     assert zones[1].status == ZONE_STATUS_IDLE

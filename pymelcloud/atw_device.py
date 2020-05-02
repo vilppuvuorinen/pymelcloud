@@ -43,20 +43,26 @@ _ZONE_INT_MODE_CURVE = 2
 _ZONE_INT_MODE_COOL_THERMOSTAT = 3
 _ZONE_INT_MODE_COOL_FLOW = 4
 
-ZONE_OPERATION_MODE_HEAT = "heat"
-ZONE_OPERATION_MODE_COOL = "cool"
+ZONE_OPERATION_MODE_HEAT_THERMOSTAT = "heat-thermostat"
+ZONE_OPERATION_MODE_COOL_THERMOSTAT = "cool-thermostat"
+ZONE_OPERATION_MODE_HEAT_FLOW = "heat-flow"
+ZONE_OPERATION_MODE_COOL_FLOW = "cool-flow"
+ZONE_OPERATION_MODE_CURVE = "curve"
 ZONE_OPERATION_MODE_UNKNOWN = "unknown"
 _ZONE_OPERATION_MODE_LOOKUP = {
-    _ZONE_INT_MODE_HEAT_THERMOSTAT: ZONE_OPERATION_MODE_HEAT,
-    _ZONE_INT_MODE_HEAT_FLOW: ZONE_OPERATION_MODE_HEAT,
-    _ZONE_INT_MODE_CURVE: ZONE_OPERATION_MODE_HEAT,
-    _ZONE_INT_MODE_COOL_THERMOSTAT: ZONE_OPERATION_MODE_COOL,
-    _ZONE_INT_MODE_COOL_FLOW: ZONE_OPERATION_MODE_COOL,
+    _ZONE_INT_MODE_HEAT_THERMOSTAT: ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+    _ZONE_INT_MODE_HEAT_FLOW: ZONE_OPERATION_MODE_HEAT_FLOW,
+    _ZONE_INT_MODE_CURVE: ZONE_OPERATION_MODE_CURVE,
+    _ZONE_INT_MODE_COOL_THERMOSTAT: ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+    _ZONE_INT_MODE_COOL_FLOW: ZONE_OPERATION_MODE_COOL_FLOW,
+}
+_REVERSE_ZONE_OPERATION_MODE_LOOKUP = {
+    value: key for key, value in _ZONE_OPERATION_MODE_LOOKUP.items()
 }
 
-ZONE_STATUS_HEAT = ZONE_OPERATION_MODE_HEAT
+ZONE_STATUS_HEAT = "heat"
 ZONE_STATUS_IDLE = "idle"
-ZONE_STATUS_COOL = ZONE_OPERATION_MODE_COOL
+ZONE_STATUS_COOL = "cool"
 ZONE_STATUS_UNKNOWN = "unknown"
 
 
@@ -110,9 +116,16 @@ class Zone:
             return ZONE_STATUS_IDLE
 
         op_mode = self.operation_mode
-        if op_mode == ZONE_OPERATION_MODE_HEAT:
+        if op_mode in [
+            ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+            ZONE_OPERATION_MODE_HEAT_FLOW,
+            ZONE_OPERATION_MODE_CURVE,
+        ]:
             return ZONE_STATUS_HEAT
-        if op_mode == ZONE_OPERATION_MODE_COOL:
+        if op_mode in [
+            ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+            ZONE_OPERATION_MODE_COOL_FLOW,
+        ]:
             return ZONE_STATUS_COOL
 
         return ZONE_STATUS_UNKNOWN
@@ -166,9 +179,13 @@ class Zone:
         if op_mode is None:
             return None
 
-        if op_mode == ZONE_OPERATION_MODE_HEAT:
-            return self.target_heat_flow_temperature
-        return self.target_cool_flow_temperature
+        if op_mode in [
+            ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+            ZONE_OPERATION_MODE_COOL_FLOW,
+        ]:
+            return self.target_cool_flow_temperature
+
+        return self.target_heat_flow_temperature
 
     @property
     def target_heat_flow_temperature(self) -> Optional[float]:
@@ -194,10 +211,13 @@ class Zone:
         if op_mode is None:
             return None
 
-        if op_mode == ZONE_OPERATION_MODE_HEAT:
-            await self.set_target_heat_flow_temperature(target_flow_temperature)
-        else:
+        if op_mode in [
+            ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+            ZONE_OPERATION_MODE_COOL_FLOW,
+        ]:
             await self.set_target_cool_flow_temperature(target_flow_temperature)
+        else:
+            await self.set_target_heat_flow_temperature(target_flow_temperature)
 
     async def set_target_heat_flow_temperature(self, target_flow_temperature):
         """Set target heat flow temperature of this zone."""
@@ -217,13 +237,7 @@ class Zone:
 
     @property
     def operation_mode(self) -> Optional[str]:
-        """Return current operation mode.
-
-        This value is not backed by "OperationMode" property of the zone. MELCloud
-        uses "OperationMode" for the temperature control mode ("Room", "Flow",
-        "Curve"). Instead this property indicates whether the device is set to heat
-        or cool.
-        """
+        """Return current operation mode."""
         state = self._device_state()
         if state is None:
             return None
@@ -235,16 +249,20 @@ class Zone:
 
     @property
     def operation_modes(self) -> List[str]:
-        """Return list of available operation modes.
-
-        This value is not backed by "OperationMode" property of the zone. MELCloud
-        uses "OperationMode" for the temperature control mode ("Room", "Flow",
-        "Curve"). Instead this property indicates whether the device is set to heat
-        or cool.
-        """
-        modes = [ZONE_OPERATION_MODE_HEAT]
-        if self._device_conf().get("Device", {}).get("CanCool", False):
-            modes.append(ZONE_OPERATION_MODE_COOL)
+        """Return list of available operation modes."""
+        modes = []
+        device = self._device_conf().get("Device", {})
+        if device.get("CanHeat", False):
+            modes += [
+                ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
+                ZONE_OPERATION_MODE_HEAT_FLOW,
+                ZONE_OPERATION_MODE_CURVE,
+            ]
+        if device.get("CanCool", False):
+            modes += [
+                ZONE_OPERATION_MODE_COOL_THERMOSTAT,
+                ZONE_OPERATION_MODE_COOL_FLOW,
+            ]
         return modes
 
     async def set_operation_mode(self, mode: str):
@@ -253,7 +271,16 @@ class Zone:
         if state is None:
             return
 
-        raise ValueError("Not implemented")
+        int_mode = _REVERSE_ZONE_OPERATION_MODE_LOOKUP.get(mode)
+        if int_mode is None:
+            raise ValueError(f"Invalid mode '{mode}'")
+
+        if self.zone_index == 1:
+            prop = PROPERTY_ZONE_1_OPERATION_MODE
+        else:
+            prop = PROPERTY_ZONE_2_OPERATION_MODE
+
+        await self._device.set({prop: int_mode})
 
 
 class AtwDevice(Device):
@@ -265,36 +292,34 @@ class AtwDevice(Device):
 
         if key == PROPERTY_TARGET_TANK_TEMPERATURE:
             state["SetTankWaterTemperature"] = value
-            flags = flags | 0x1000000000020
+            flags |= 0x1000000000020
         elif key == PROPERTY_OPERATION_MODE:
             state["ForcedHotWaterMode"] = value == OPERATION_MODE_FORCE_HOT_WATER
-            flags = flags | 0x10000
+            flags |= 0x10000
         elif key == PROPERTY_ZONE_1_TARGET_TEMPERATURE:
             state["SetTemperatureZone1"] = value
-            flags = flags | 0x200000080
+            flags |= 0x200000080
         elif key == PROPERTY_ZONE_2_TARGET_TEMPERATURE:
             state["SetTemperatureZone2"] = value
-            flags = flags | 0x800000200
+            flags |= 0x800000200
         elif key == PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE:
             state["SetHeatFlowTemperatureZone1"] = value
-            flags = flags | 0x1000000000000
+            flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE:
             state["SetCoolFlowTemperatureZone1"] = value
-            flags = flags | 0x1000000000000
+            flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE:
             state["SetHeatFlowTemperatureZone2"] = value
-            flags = flags | 0x1000000000000
+            flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE:
             state["SetCoolFlowTemperatureZone2"] = value
-            flags = flags | 0x1000000000000
+            flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
-            # Captures required to implement
-            # 0x08
-            pass
+            state["OperationModeZone1"] = value
+            flags |= 0x08
         elif key == PROPERTY_ZONE_2_OPERATION_MODE:
-            # Captures required to implement
-            # 0x10
-            pass
+            state["OperationModeZone2"] = value
+            flags |= 0x10
         else:
             raise ValueError(f"Cannot set {key}, invalid property")
 
