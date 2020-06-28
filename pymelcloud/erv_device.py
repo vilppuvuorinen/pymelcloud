@@ -253,3 +253,20 @@ class ErvDevice(Device):
 
         return speeds
 
+    @property
+    def ventilation_modes(self) -> List[str]:
+        """Return available ventilation modes."""
+        modes: List[str] = []
+
+        modes.append(VENTILATION_MODE_RECOVERY)
+
+        conf_dev = self._device_conf.get("Device", {})
+
+        if conf_dev.get("HasBypassVentilationMode", False):
+            modes.append(VENTILATION_MODE_BYPASS)
+
+        if conf_dev.get("HasAutoVentilationMode", False):
+            modes.append(VENTILATION_MODE_AUTO)
+
+
+        return modes
