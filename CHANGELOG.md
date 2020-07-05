@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support for Erv devices.
+- `wifi_signal` strength and `error_code` for all device types.
 
 ## [2.8.0] - 2020-05-02
 ### Added

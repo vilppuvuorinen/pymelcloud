@@ -170,3 +170,27 @@ class Device(ABC):
         if self._state is None:
             return None
         return self._state.get("Power")
+
+    @property
+    def wifi_signal(self) -> Optional[int]:
+        """Return wifi signal in dBm (negative value)."""
+        if self._state is None:
+            return None
+        return self._state.get("WifiSignalStrength", None)
+
+    @property
+    def has_error(self) -> bool:
+        """Return True if the device has error state."""
+        if self._state is None:
+            return False
+        return self._state.get("HasError", False)
+
+    @property
+    def error_code(self) -> Optional[str]:
+        """Return error_code.
+        This is a property that probably should be checked if "has_error" = true
+        Till now I have a fixed code = 8000 and never have error on the units
+        """
+        if self._state is None:
+            return None
+        return self._state.get("ErrorCode", None)

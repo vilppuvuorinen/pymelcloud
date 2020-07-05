@@ -20,6 +20,7 @@ _VENTILATION_MODE_LOOKUP = {
     2: VENTILATION_MODE_AUTO,
 }
 
+
 def _fan_speed_from(speed: int) -> str:
     if speed == -1:
         return FAN_SPEED_UNDEFINED
@@ -91,38 +92,6 @@ class ErvDevice(Device):
         return reading / 1000.0
 
     @property
-    def wifi_signal(self) -> Optional[int]:
-        """Return wifi signal in dBm (negative value)."""
-        if self._device_conf is None:
-            return None
-        device = self._device_conf.get("Device", {})
-        reading = device.get("WifiSignalStrength", None)
-        if reading is None:
-            return None
-        return reading
-
-    @property
-    def has_error(self) -> bool:
-        """Return True if the device has error state."""
-        if self._device_conf is None:
-            return False
-        return self._device_conf.get("Device", {}).get("HasError", False)
-
-    @property
-    def error_code(self) -> Optional[str]:
-        """Return error_code.
-        This is a property that probably should be checked if "has_error" = true
-        Till now I have a fixed code = 8000 and never have error on the units
-        """
-        if self._device_conf is None:
-            return None
-        device = self._device_conf.get("Device", {})
-        reading = device.get("ErrorCode", None)
-        if reading is None:
-            return None
-        return reading
-
-    @property
     def presets(self) -> List[Dict[Any, Any]]:
         """Return presets configuration (preset created using melcloud app)."""
         retval = []
@@ -141,24 +110,24 @@ class ErvDevice(Device):
         return self._state.get("RoomTemperature")
 
     @property
-    def outdoor_temperature(self) -> Optional[float]:
+    def outside_temperature(self) -> Optional[float]:
         """Return outdoor temperature reported by the device."""
         if self._state is None:
             return None
         return self._state.get("OutdoorTemperature")
 
     @property
-    def ventilation_mode(self) -> str:
+    def ventilation_mode(self) -> Optional[str]:
         """Return currently active ventilation mode."""
         if self._state is None:
-            return VENTILATION_MODE_UNDEFINED
+            return None
         return _ventilation_mode_from(self._state.get("VentilationMode", -1))
 
     @property
-    def actual_ventilation_mode(self) -> str:
+    def actual_ventilation_mode(self) -> Optional[str]:
         """Return actual ventilation mode."""
         if self._state is None:
-            return VENTILATION_MODE_UNDEFINED
+            return None
         return _ventilation_mode_from(self._device_conf.get("Device", {}).get("ActualVentilationMode", -1))
 
     @property
@@ -218,7 +187,7 @@ class ErvDevice(Device):
         if self._state is None:
             return None
 
-        if  self._state.get("HasCO2Sensor", False) == False:
+        if not self._state.get("HasCO2Sensor", False):
             return None
 
         return self._device_conf.get("Device", {}).get("RoomCO2Level", None)
@@ -256,9 +225,7 @@ class ErvDevice(Device):
     @property
     def ventilation_modes(self) -> List[str]:
         """Return available ventilation modes."""
-        modes: List[str] = []
-
-        modes.append(VENTILATION_MODE_RECOVERY)
+        modes: List[str] = [VENTILATION_MODE_RECOVERY]
 
         conf_dev = self._device_conf.get("Device", {})
 
@@ -267,6 +234,5 @@ class ErvDevice(Device):
 
         if conf_dev.get("HasAutoVentilationMode", False):
             modes.append(VENTILATION_MODE_AUTO)
-
 
         return modes

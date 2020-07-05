@@ -60,6 +60,9 @@ async def test_1zone():
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
     assert device.holiday_mode is None
+    assert device.wifi_signal is None
+    assert device.has_error is False
+    assert device.error_code is None
 
     zones = device.zones
 
@@ -86,6 +89,9 @@ async def test_1zone():
     assert device.tank_temperature == 52.0
     assert device.target_tank_temperature == 50.0
     assert device.holiday_mode is False
+    assert device.wifi_signal == -73
+    assert device.has_error is False
+    assert device.error_code == 8000
 
     assert zones[0].room_temperature == 27.0
     assert zones[0].target_temperature == 30
@@ -118,6 +124,9 @@ async def test_2zone():
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
     assert device.holiday_mode is None
+    assert device.wifi_signal is None
+    assert device.has_error is False
+    assert device.error_code is None
 
     zones = device.zones
 
@@ -159,6 +168,9 @@ async def test_2zone():
     assert device.tank_temperature == 49.5
     assert device.target_tank_temperature == 50.0
     assert device.holiday_mode is False
+    assert device.wifi_signal is None
+    assert device.has_error is False
+    assert device.error_code == 8000
 
     assert zones[0].room_temperature == 20.5
     assert zones[0].target_temperature == 19.5
@@ -204,6 +216,9 @@ async def test_2zone_cancool():
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
     assert device.holiday_mode is None
+    assert device.wifi_signal is None
+    assert device.has_error is False
+    assert device.error_code is None
 
     zones = device.zones
 
@@ -249,6 +264,9 @@ async def test_2zone_cancool():
     assert device.tank_temperature == 47.5
     assert device.target_tank_temperature == 52.0
     assert device.holiday_mode is False
+    assert device.wifi_signal is None
+    assert device.has_error is False
+    assert device.error_code == 8000
 
     assert zones[0].room_temperature == 21.5
     assert zones[0].target_temperature == 20.5

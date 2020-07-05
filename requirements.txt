@@ -1,3 +1,5 @@
 aiohttp
 asynctest
 pre-commit
+pytest
+pytest-asyncio
