@@ -197,6 +197,8 @@ class Client:
             setter = "SetAta"
         elif device_type == 1:
             setter = "SetAtw"
+        elif device_type == 3:
+            setter = "SetErv"
         else:
             raise ValueError(f"Unsupported device type [{device_type}]")
 

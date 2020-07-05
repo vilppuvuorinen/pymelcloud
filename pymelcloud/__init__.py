@@ -6,9 +6,10 @@ from aiohttp import ClientSession
 
 from pymelcloud.ata_device import AtaDevice
 from pymelcloud.atw_device import AtwDevice
+from pymelcloud.erv_device import ErvDevice
 from pymelcloud.client import Client as _Client
 from pymelcloud.client import login as _login
-from pymelcloud.const import DEVICE_TYPE_ATA, DEVICE_TYPE_ATW
+from pymelcloud.const import DEVICE_TYPE_ATA, DEVICE_TYPE_ATW, DEVICE_TYPE_ERV
 from pymelcloud.device import Device
 
 
@@ -57,5 +58,10 @@ async def get_devices(
             AtwDevice(conf, _client, set_debounce=device_set_debounce)
             for conf in _client.device_confs
             if conf.get("Device", {}).get("DeviceType") == 1
+        ],
+        DEVICE_TYPE_ERV: [
+            ErvDevice(conf, _client, set_debounce=device_set_debounce)
+            for conf in _client.device_confs
+            if conf.get("Device", {}).get("DeviceType") == 3
         ],
     }
