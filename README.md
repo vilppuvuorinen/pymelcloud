@@ -28,7 +28,8 @@ availability issues.
 ## Supported devices
 
 * Air-to-air heat pumps (DeviceType=0)
-* [WIP] Air-to-water heat pumps (DeviceType=1)
+* Air-to-water heat pumps (DeviceType=1)
+* Energy Recovery Ventilators (DeviceType=3) 
 
 ## Read
 
@@ -78,6 +79,25 @@ one has the time to go through the source.
 * `status`
 * `operation_mode`
 * available `operation_modes`
+
+### Energy recovery ventilator properties
+* `room_temperature`
+* `outdoor_temperature`
+* available `fan_speeds`
+* `fan_speed`
+* `actual_supply_fan_speed`
+* `actual_exhaust_fan_speed`
+* available `ventilation_modes`
+* `ventilation_mode`
+* `actual_ventilation_mode`
+* `total_energy_consumed`
+* `wifi_signal`
+* `presets`
+* `error_code`
+* `core_maintenance_required`
+* `filter_maintenance_required`
+* `night_purge_mode`
+* `room_co2_level`
 
 ### Energy consumption
 
@@ -134,6 +154,11 @@ inteface.
 
 Zone target temperatures can also be set via the `Zone` object
 returned by `zones` property on `AtwDevice`.
+
+### Energy recovery ventilator write
+
+* `ventilation_mode`
+* `fan_speed`
 
 ## Example usage
 
