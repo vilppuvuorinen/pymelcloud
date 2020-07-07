@@ -61,15 +61,20 @@ async def test_erv():
     await device.update()
 
     assert device.room_temperature == 29.0
-    assert device.outside_temperature == 29.0
+    assert device.outside_temperature == 28.0
     assert device.room_co2_level is None
 
     assert device.ventilation_mode == VENTILATION_MODE_RECOVERY
     assert device.actual_ventilation_mode == VENTILATION_MODE_RECOVERY
     assert device.fan_speed == "3"
     assert device.fan_speeds == ["1", "2", "3", "4"]
-    assert device.actual_supply_fan_speed == "0"
-    assert device.actual_exhaust_fan_speed is "0"
+    assert device.actual_supply_fan_speed == "3"
+    assert device.actual_exhaust_fan_speed == "3"
     assert device.core_maintenance_required is False
     assert device.filter_maintenance_required is False
     assert device.night_purge_mode is False
+
+    assert device.wifi_signal == -65
+    assert device.has_error is False
+    assert device.error_code == 8000
+    assert str(device.last_seen) == '2020-07-07 06:44:11.027000+00:00'
