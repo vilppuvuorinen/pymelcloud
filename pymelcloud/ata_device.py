@@ -349,3 +349,15 @@ class AtaDevice(Device):
             positions.append(V_VANE_POSITION_SWING)
 
         return positions
+
+    @property
+    def actual_fan_speed(self) -> Optional[str]:
+        """Return actual fan speed. 
+
+        0 is stopped, not auto
+
+        """
+        if self._state is None:
+            return None
+        return str(self._device_conf.get("Device", {}).get("ActualFanSpeed", -1))
+

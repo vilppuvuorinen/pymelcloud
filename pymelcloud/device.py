@@ -1,7 +1,7 @@
 """Base MELCloud device."""
 import asyncio
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.client import Client
@@ -162,7 +162,7 @@ class Device(ABC):
             return None
         return datetime.strptime(
             self._state.get("LastCommunication"), "%Y-%m-%dT%H:%M:%S.%f"
-        )
+        ).replace(tzinfo=timezone.utc)
 
     @property
     def power(self) -> Optional[bool]:
@@ -174,9 +174,9 @@ class Device(ABC):
     @property
     def wifi_signal(self) -> Optional[int]:
         """Return wifi signal in dBm (negative value)."""
-        if self._state is None:
+        if self._device_conf is None:
             return None
-        return self._state.get("WifiSignalStrength", None)
+        return self._device_conf.get("Device", {}).get("WifiSignalStrength", None)
 
     @property
     def has_error(self) -> bool:
