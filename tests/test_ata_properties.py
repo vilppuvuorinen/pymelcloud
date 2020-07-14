@@ -1,4 +1,4 @@
-"""ERV tests."""
+"""ATA tests."""
 import json
 import os
 

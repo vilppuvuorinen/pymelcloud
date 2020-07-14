@@ -1,8 +1,7 @@
 """Base MELCloud device."""
 import asyncio
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from dateutil import tz
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.client import Client
@@ -163,7 +162,7 @@ class Device(ABC):
             return None
         return datetime.strptime(
             self._state.get("LastCommunication"), "%Y-%m-%dT%H:%M:%S.%f"
-        ).replace(tzinfo=tz.tzutc())
+        ).replace(tzinfo=timezone.utc)
 
     @property
     def power(self) -> Optional[bool]:
