@@ -163,16 +163,27 @@ returned by `zones` property on `AtwDevice`.
 ## Example usage
 
 ```python
->>> import pymelcloud
->>> token = await pymelcloud.login("user@example.com", "password")
->>> devices = await pymelcloud.get_devices(token)
->>> device = devices[pymelcloud.DEVICE_TYPE_ATA][0]
->>> await device.update()
->>> device.name
-'Heat Pump 1'
->>> device.target_temperature
-21.0
->>> device.set({"target_temperature": 21.5})
->>> >>> device.target_temperature
-21.5
+import aiohttp
+import asyncio
+import pymelcloud
+
+
+async def main():
+
+    async with aiohttp.ClientSession() as session:
+        # call the login method with the session
+        token = await pymelcloud.login("my@example.com", "mysecretpassword", session=session)
+
+        # lookup the device
+        devices = await pymelcloud.get_devices(token, session=session)
+        device = devices[pymelcloud.DEVICE_TYPE_ATW][0]
+
+        # perform logic on the device
+        await device.update()
+
+        print(device.name)
+        await session.close()
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
 ```
