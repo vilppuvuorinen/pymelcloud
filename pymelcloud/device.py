@@ -10,6 +10,7 @@ from pymelcloud.const import (
     DEVICE_TYPE_UNKNOWN,
     UNIT_TEMP_CELSIUS,
     UNIT_TEMP_FAHRENHEIT,
+    ACCESS_LEVEL,
 )
 
 PROPERTY_POWER = "power"
@@ -32,6 +33,7 @@ class Device(ABC):
         self.building_id = device_conf.get("BuildingID")
         self.mac = device_conf.get("MacAddress")
         self.serial = device_conf.get("SerialNumber")
+        self.access_level = device_conf.get("AccessLevel")
 
         self._use_fahrenheit = False
         if client.account is not None:
@@ -73,7 +75,9 @@ class Device(ABC):
         )
         self._state = await self._client.fetch_device_state(self)
 
-        if self._device_units is None:
+        if self._device_units is None and self.access_level != ACCESS_LEVEL.get(
+            "GUEST"
+        ):
             self._device_units = await self._client.fetch_device_units(self)
 
     async def set(self, properties: Dict[str, Any]):
