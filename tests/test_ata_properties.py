@@ -49,6 +49,7 @@ def _build_device(device_conf_name: str, device_state_name: str) -> AtaDevice:
 
     return AtaDevice(device_conf, client)
 
+
 @pytest.mark.asyncio
 async def test_ata():
     device = _build_device("ata_listdevice.json", "ata_get.json")
@@ -78,11 +79,10 @@ async def test_ata():
     assert device.fan_speed == "3"
     assert device.actual_fan_speed == "0"
     assert device.fan_speeds == ["auto", "1", "2", "3", "4", "5"]
-    
+
     assert device.vane_vertical == V_VANE_POSITION_AUTO
     assert device.vane_horizontal == H_VANE_POSITION_3
 
     assert device.wifi_signal == -51
     assert device.has_error is False
     assert device.error_code == 8000
-    
