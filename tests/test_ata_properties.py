@@ -4,7 +4,9 @@ import os
 
 import pytest
 from asynctest import CoroutineMock, Mock, patch
+from aiohttp.web import HTTPForbidden
 from pymelcloud import DEVICE_TYPE_ATA
+from pymelcloud.const import ACCESS_LEVEL
 from pymelcloud.ata_device import (
     OPERATION_MODE_HEAT,
     OPERATION_MODE_DRY,
@@ -56,6 +58,7 @@ async def test_ata():
 
     assert device.name == ""
     assert device.device_type == DEVICE_TYPE_ATA
+    assert device.access_level == ACCESS_LEVEL["OWNER"]
     assert device.temperature_increment == 0.5
     assert device.has_energy_consumed_meter is False
     assert device.room_temperature is None
@@ -86,3 +89,12 @@ async def test_ata():
     assert device.wifi_signal == -51
     assert device.has_error is False
     assert device.error_code == 8000
+
+
+@pytest.mark.asyncio
+async def test_ata_guest():
+    device = _build_device("ata_guest_listdevices.json", "ata_guest_get.json")
+    device._client.fetch_device_units = CoroutineMock(side_effect=HTTPForbidden)
+    assert device.device_type == DEVICE_TYPE_ATA
+    assert device.access_level == ACCESS_LEVEL["GUEST"]
+    await device.update()
