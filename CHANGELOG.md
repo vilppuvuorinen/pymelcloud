@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.4] - 2021-09-11
+### Fixed
+- Read zone specific flow/return temperatures from the actually working global temperature variable.
+
 ## [2.5.3] - 2021-05-24
 ### Fixed
 - Prevent forbidden request to `ListDeviceUnits` on guest devices.
