@@ -1,6 +1,6 @@
 # pymelcloud
 
-[![PyPI version](https://badge.fury.io/py/pymelcloud.svg)](https://badge.fury.io/py/pymelcloud) [![Build Status](https://travis-ci.org/vilppuvuorinen/pymelcloud.svg?branch=master)](https://travis-ci.org/vilppuvuorinen/pymelcloud) [![Coverage Status](https://coveralls.io/repos/github/vilppuvuorinen/pymelcloud/badge.svg?branch=ci-things)](https://coveralls.io/github/vilppuvuorinen/pymelcloud?branch=master)
+[![PyPI version](https://badge.fury.io/py/pymelcloud.svg)](https://badge.fury.io/py/pymelcloud)
 
 This is a package for interacting with MELCloud and Mitsubishi Electric
 devices. It's still a little rough around the edges and the documentation
