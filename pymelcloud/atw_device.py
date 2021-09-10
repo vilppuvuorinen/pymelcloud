@@ -180,8 +180,12 @@ class Zone:
         if state is None:
             return None
 
+        mode = state.get(f"OperationModeZone{self.zone_index}")
+        if not isinstance(mode, int):
+            raise ValueError(f"Invalid operation mode [{mode}]")
+
         return _ZONE_OPERATION_MODE_LOOKUP.get(
-            state.get(f"OperationModeZone{self.zone_index}"),
+            mode,
             ZONE_OPERATION_MODE_UNKNOWN,
         )
 
