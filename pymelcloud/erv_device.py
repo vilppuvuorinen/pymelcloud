@@ -69,12 +69,15 @@ class ErvDevice(Device):
 
         state[EFFECTIVE_FLAGS] = flags
 
+    def _device(self) -> Dict[str, Any]:
+        return self._device_conf.get("Device", {})
+
     @property
     def has_energy_consumed_meter(self) -> bool:
         """Return True if the device has an energy consumption meter."""
         if self._device_conf is None:
             return False
-        return self._device_conf.get("Device", {}).get("HasEnergyConsumedMeter", False)
+        return self._device().get("HasEnergyConsumedMeter", False)
 
     @property
     def total_energy_consumed(self) -> Optional[float]:
@@ -85,8 +88,7 @@ class ErvDevice(Device):
         """
         if self._device_conf is None:
             return None
-        device = self._device_conf.get("Device", {})
-        reading = device.get("CurrentEnergyConsumed", None)
+        reading = self._device().get("CurrentEnergyConsumed", None)
         if reading is None:
             return None
         return reading / 1000.0
@@ -128,7 +130,7 @@ class ErvDevice(Device):
         """Return actual ventilation mode."""
         if self._state is None:
             return None
-        return _ventilation_mode_from(self._device_conf.get("Device", {}).get("ActualVentilationMode", -1))
+        return _ventilation_mode_from(self._device().get("ActualVentilationMode", -1))
 
     @property
     def fan_speed(self) -> Optional[str]:
@@ -148,7 +150,7 @@ class ErvDevice(Device):
         """
         if self._state is None:
             return None
-        return _fan_speed_from(self._device_conf.get("Device", {}).get("ActualSupplyFanSpeed", -1))
+        return _fan_speed_from(self._device().get("ActualSupplyFanSpeed", -1))
 
     @property
     def actual_exhaust_fan_speed(self) -> Optional[str]:
@@ -158,28 +160,28 @@ class ErvDevice(Device):
         """
         if self._state is None:
             return None
-        return _fan_speed_from(self._device_conf.get("Device", {}).get("ActualExhaustFanSpeed", -1))
+        return _fan_speed_from(self._device().get("ActualExhaustFanSpeed", -1))
 
     @property
     def core_maintenance_required(self) -> bool:
         """Return True if core maintenance required."""
         if self._device_conf is None:
             return False
-        return self._device_conf.get("Device", {}).get("CoreMaintenanceRequired", False)
+        return self._device().get("CoreMaintenanceRequired", False)
 
     @property
     def filter_maintenance_required(self) -> bool:
         """Return True if filter maintenance required."""
         if self._device_conf is None:
             return False
-        return self._device_conf.get("Device", {}).get("FilterMaintenanceRequired", False)
+        return self._device().get("FilterMaintenanceRequired", False)
 
     @property
     def night_purge_mode(self) -> bool:
         """Return True if NightPurgeMode."""
         if self._device_conf is None:
             return False
-        return self._device_conf.get("Device", {}).get("NightPurgeMode", False)
+        return self._device().get("NightPurgeMode", False)
 
     @property
     def room_co2_level(self) -> Optional[float]:
@@ -190,7 +192,7 @@ class ErvDevice(Device):
         if not self._state.get("HasCO2Sensor", False):
             return None
 
-        return self._device_conf.get("Device", {}).get("RoomCO2Level", None)
+        return self._device().get("RoomCO2Level", None)
 
     @property
     def fan_speeds(self) -> Optional[List[str]]:
@@ -227,12 +229,12 @@ class ErvDevice(Device):
         """Return available ventilation modes."""
         modes: List[str] = [VENTILATION_MODE_RECOVERY]
 
-        conf_dev = self._device_conf.get("Device", {})
+        device = self._device()
 
-        if conf_dev.get("HasBypassVentilationMode", False):
+        if device.get("HasBypassVentilationMode", False):
             modes.append(VENTILATION_MODE_BYPASS)
 
-        if conf_dev.get("HasAutoVentilationMode", False):
+        if device.get("HasAutoVentilationMode", False):
             modes.append(VENTILATION_MODE_AUTO)
 
         return modes

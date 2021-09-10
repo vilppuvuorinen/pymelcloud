@@ -352,7 +352,7 @@ class AtaDevice(Device):
 
     @property
     def actual_fan_speed(self) -> Optional[str]:
-        """Return actual fan speed. 
+        """Return actual fan speed.
 
         0 is stopped, not auto
 
@@ -360,4 +360,3 @@ class AtaDevice(Device):
         if self._state is None:
             return None
         return str(self._device_conf.get("Device", {}).get("ActualFanSpeed", -1))
-
