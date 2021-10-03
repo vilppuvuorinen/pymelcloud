@@ -49,6 +49,17 @@ class Device(ABC):
         self._write_task: Optional[asyncio.Future[None]] = None
         self._pending_writes: Dict[str, Any] = {}
 
+    def get_device_prop(self, name: str) -> Optional[Any]:
+        """Access device properties while shortcutting the nested device access."""
+        device = self._device_conf.get("Device", {})
+        return device.get(name)
+
+    def get_state_prop(self, name: str) -> Optional[Any]:
+        """Access state prop without None check."""
+        if self._state is None:
+            return None
+        return self._state.get(name)
+
     @abstractmethod
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.

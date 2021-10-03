@@ -59,6 +59,9 @@ async def test_1zone():
     assert device.target_tank_temperature is None
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature == 0
     assert device.holiday_mode is None
     assert device.wifi_signal == -73
     assert device.has_error is False
@@ -88,6 +91,9 @@ async def test_1zone():
     assert device.status == STATUS_HEAT_ZONES
     assert device.tank_temperature == 52.0
     assert device.target_tank_temperature == 50.0
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature == 0
     assert device.holiday_mode is False
     assert device.wifi_signal == -73
     assert device.has_error is False
@@ -123,6 +129,9 @@ async def test_2zone():
     assert device.target_tank_temperature is None
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature == 0
     assert device.holiday_mode is None
     assert device.wifi_signal == -37
     assert device.has_error is False
@@ -167,6 +176,9 @@ async def test_2zone():
     assert device.status == STATUS_HEAT_ZONES
     assert device.tank_temperature == 49.5
     assert device.target_tank_temperature == 50.0
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature == 0
     assert device.holiday_mode is False
     assert device.wifi_signal == -37
     assert device.has_error is False
@@ -215,6 +227,9 @@ async def test_2zone_cancool():
     assert device.target_tank_temperature is None
     assert device.target_tank_temperature_min == 40
     assert device.target_tank_temperature_max == 60
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature is None
     assert device.holiday_mode is None
     assert device.wifi_signal == -82
     assert device.has_error is False
@@ -263,6 +278,9 @@ async def test_2zone_cancool():
     assert device.status == STATUS_HEAT_WATER
     assert device.tank_temperature == 47.5
     assert device.target_tank_temperature == 52.0
+    assert device.flow_temperature_boiler == 25
+    assert device.return_temperature_boiler == 25
+    assert device.mixing_tank_temperature is None
     assert device.holiday_mode is False
     assert device.wifi_signal == -82
     assert device.has_error is False

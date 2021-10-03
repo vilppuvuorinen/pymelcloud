@@ -334,16 +334,12 @@ class AtwDevice(Device):
     @property
     def tank_temperature(self) -> Optional[float]:
         """Return tank water temperature."""
-        if self._state is None:
-            return None
-        return self._state.get("TankWaterTemperature")
+        return self.get_state_prop("TankWaterTemperature")
 
     @property
     def target_tank_temperature(self) -> Optional[float]:
         """Return target tank water temperature."""
-        if self._state is None:
-            return None
-        return self._state.get("SetTankWaterTemperature")
+        return self.get_state_prop("SetTankWaterTemperature")
 
     @property
     def target_tank_temperature_min(self) -> Optional[float]:
@@ -360,8 +356,7 @@ class AtwDevice(Device):
 
         This value can be set using PROPERTY_TARGET_TANK_TEMPERATURE.
         """
-        device = self._device_conf.get("Device", {})
-        return device.get("MaxTankTemperature")
+        return self.get_device_prop("MaxTankTemperature")
 
     @property
     def outside_temperature(self) -> Optional[float]:
@@ -371,9 +366,22 @@ class AtwDevice(Device):
         rate. The value is reported using 1°C (2°F?) accuracy and updated every 2
         hours.
         """
-        if self._state is None:
-            return None
-        return self._state.get("OutdoorTemperature")
+        return self.get_state_prop("OutdoorTemperature")
+
+    @property
+    def flow_temperature_boiler(self) -> Optional[float]:
+        """Return flow temperature of the boiler."""
+        return self.get_device_prop("FlowTemperatureBoiler")
+
+    @property
+    def return_temperature_boiler(self) -> Optional[float]:
+        """Return flow temperature of the boiler."""
+        return self.get_device_prop("FlowTemperatureBoiler")
+
+    @property
+    def mixing_tank_temperature(self) -> Optional[float]:
+        """Return mixing tank temperature."""
+        return self.get_device_prop("MixingTankWaterTemperature")
 
     @property
     def zones(self) -> Optional[List[Zone]]:
