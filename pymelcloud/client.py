@@ -41,6 +41,7 @@ async def login(
     password: str,
     session: Optional[ClientSession] = None,
     *,
+    user_update_interval: Optional[timedelta] = None,
     conf_update_interval: Optional[timedelta] = None,
     device_set_debounce: Optional[timedelta] = None,
 ):
@@ -54,6 +55,7 @@ async def login(
     return Client(
         response.get("LoginData").get("ContextKey"),
         session,
+        user_update_interval=user_update_interval,
         conf_update_interval=conf_update_interval,
         device_set_debounce=device_set_debounce,
     )
@@ -71,7 +73,8 @@ class Client:
         token: str,
         session: Optional[ClientSession] = None,
         *,
-        conf_update_interval=timedelta(minutes=5),
+        user_update_interval=timedelta(minutes=5),
+        conf_update_interval=timedelta(seconds=59),
         device_set_debounce=timedelta(seconds=1),
     ):
         """Initialize MELCloud client."""
@@ -82,9 +85,11 @@ class Client:
         else:
             self._session = ClientSession()
             self._managed_session = True
+        self._user_update_interval = user_update_interval
         self._conf_update_interval = conf_update_interval
         self._device_set_debounce = device_set_debounce
 
+        self._last_user_update = None
         self._last_conf_update = None
         self._device_confs: List[Dict[str, Any]] = []
         self._account: Optional[Dict[str, Any]] = None
@@ -147,15 +152,20 @@ class Client:
         state while refreshing the device_confs list and account.
         """
         now = datetime.now()
-        if (
-            self._last_conf_update is not None
-            and now - self._last_conf_update < self._conf_update_interval
-        ):
-            return None
 
-        self._last_conf_update = now
-        await self._fetch_user_details()
-        await self._fetch_device_confs()
+        if (
+            self._last_conf_update is None
+            or now - self._last_conf_update > self._conf_update_interval
+        ):
+            await self._fetch_device_confs()
+            self._last_conf_update = now
+
+        if (
+            self._last_user_update is None
+            or now - self._last_user_update > self._user_update_interval
+        ):
+            await self._fetch_user_details()
+            self._last_user_update = now
 
     async def fetch_device_units(self, device) -> Optional[Dict[Any, Any]]:
         """Fetch unit information for a device.
