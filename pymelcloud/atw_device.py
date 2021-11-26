@@ -297,28 +297,28 @@ class AtwDevice(Device):
         flags = state.get(EFFECTIVE_FLAGS, 0)
 
         if key == PROPERTY_TARGET_TANK_TEMPERATURE:
-            state["SetTankWaterTemperature"] = value
+            state["SetTankWaterTemperature"] = self.round_temperature(value)
             flags |= 0x1000000000020
         elif key == PROPERTY_OPERATION_MODE:
             state["ForcedHotWaterMode"] = value == OPERATION_MODE_FORCE_HOT_WATER
             flags |= 0x10000
         elif key == PROPERTY_ZONE_1_TARGET_TEMPERATURE:
-            state["SetTemperatureZone1"] = value
+            state["SetTemperatureZone1"] = self.round_temperature(value)
             flags |= 0x200000080
         elif key == PROPERTY_ZONE_2_TARGET_TEMPERATURE:
-            state["SetTemperatureZone2"] = value
+            state["SetTemperatureZone2"] = self.round_temperature(value)
             flags |= 0x800000200
         elif key == PROPERTY_ZONE_1_TARGET_HEAT_FLOW_TEMPERATURE:
-            state["SetHeatFlowTemperatureZone1"] = value
+            state["SetHeatFlowTemperatureZone1"] = self.round_temperature(value)
             flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_1_TARGET_COOL_FLOW_TEMPERATURE:
-            state["SetCoolFlowTemperatureZone1"] = value
+            state["SetCoolFlowTemperatureZone1"] = self.round_temperature(value)
             flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_2_TARGET_HEAT_FLOW_TEMPERATURE:
-            state["SetHeatFlowTemperatureZone2"] = value
+            state["SetHeatFlowTemperatureZone2"] = self.round_temperature(value)
             flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_2_TARGET_COOL_FLOW_TEMPERATURE:
-            state["SetCoolFlowTemperatureZone2"] = value
+            state["SetCoolFlowTemperatureZone2"] = self.round_temperature(value)
             flags |= 0x1000000000000
         elif key == PROPERTY_ZONE_1_OPERATION_MODE:
             state["OperationModeZone1"] = value
