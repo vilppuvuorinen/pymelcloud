@@ -1,7 +1,9 @@
 """Air-To-Air (DeviceType=0) device definition."""
+from datetime import timedelta
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.device import EFFECTIVE_FLAGS, Device
+from pymelcloud.client import Client
 
 PROPERTY_TARGET_TEMPERATURE = "target_temperature"
 PROPERTY_OPERATION_MODE = "operation_mode"
@@ -136,6 +138,16 @@ def _vertical_vane_to(position: str) -> int:
 class AtaDevice(Device):
     """Air-to-Air device."""
 
+    def __init__(
+        self,
+        device_conf: Dict[str, Any],
+        client: Client,
+        set_debounce=timedelta(seconds=1),
+    ):
+        """Initialize an ATA device."""
+        super().__init__(device_conf, client, set_debounce)
+        self.last_energy_value = None
+
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.
 
@@ -173,15 +185,20 @@ class AtaDevice(Device):
         """Return total consumed energy as kWh.
 
         The update interval is extremely slow and inconsistent. Empirical evidence
-        suggests can vary between 1h 30min and 3h.
+        suggests that it can vary between 1h 30min and 3h.
         """
         if self._device_conf is None:
             return None
         device = self._device_conf.get("Device", {})
-        reading = device.get("CurrentEnergyConsumed", None)
-        if reading is None:
+        value = device.get("CurrentEnergyConsumed", None)
+        if value is None:
             return None
-        return reading / 1000.0
+
+        if value == 0.0:
+            return self.last_energy_value
+
+        self.last_energy_value = value / 1000.0
+        return self.last_energy_value
 
     @property
     def room_temperature(self) -> Optional[float]:
