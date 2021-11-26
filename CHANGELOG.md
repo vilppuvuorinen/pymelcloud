@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Guard against zero Ata device energy meter reading. Latest firmware returns occasional zeroes breaking energy consumption integrations.
+- Round temperatures being set to the nearest temperature_increment using round half up.
 
 ## [2.5.4] - 2021-09-11
 ### Fixed

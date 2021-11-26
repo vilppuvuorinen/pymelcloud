@@ -49,6 +49,15 @@ class Device(ABC):
         self._write_task: Optional[asyncio.Future[None]] = None
         self._pending_writes: Dict[str, Any] = {}
 
+    def round_temperature(self, temperature: float) -> float:
+        """Round a temperature to the nearest temperature increment."""
+        increment = self.temperature_increment
+        if temperature < 0:
+            half_increment = -increment / 2.0
+        else:
+            half_increment = increment / 2.0
+        return round((temperature + half_increment) / increment) * increment
+
     @abstractmethod
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
         """Apply writes to state object.

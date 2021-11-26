@@ -156,7 +156,7 @@ class AtaDevice(Device):
         flags = state.get(EFFECTIVE_FLAGS, 0)
 
         if key == PROPERTY_TARGET_TEMPERATURE:
-            state["SetTemperature"] = value
+            state["SetTemperature"] = self.round_temperature(value)
             flags = flags | 0x04
         elif key == PROPERTY_OPERATION_MODE:
             state["OperationMode"] = _operation_mode_to(value)
