@@ -1,9 +1,5 @@
 """Ecodan tests."""
-import json
-import os
-
 import pytest
-from asynctest import CoroutineMock, Mock, patch
 from pymelcloud import DEVICE_TYPE_ATW
 from pymelcloud.atw_device import (
     OPERATION_MODE_AUTO,
@@ -21,23 +17,11 @@ from pymelcloud.atw_device import (
     ZONE_STATUS_UNKNOWN,
     AtwDevice,
 )
+from .util import build_device
 
 
 def _build_device(device_conf_name: str, device_state_name: str) -> AtwDevice:
-    test_dir = os.path.join(os.path.dirname(__file__), "samples")
-    with open(os.path.join(test_dir, device_conf_name), "r") as json_file:
-        device_conf = json.load(json_file)
-
-    with open(os.path.join(test_dir, device_state_name), "r") as json_file:
-        device_state = json.load(json_file)
-
-    with patch("pymelcloud.client.Client") as _client:
-        _client.update_confs = CoroutineMock()
-        _client.device_confs.__iter__ = Mock(return_value=[device_conf].__iter__())
-        _client.fetch_device_units = CoroutineMock(return_value=[])
-        _client.fetch_device_state = CoroutineMock(return_value=device_state)
-        client = _client
-
+    device_conf, client = build_device(device_conf_name, device_state_name)
     return AtwDevice(device_conf, client)
 
 

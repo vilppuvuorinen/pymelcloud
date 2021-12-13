@@ -2,6 +2,7 @@
 import asyncio
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any, Dict, List, Optional
 
 from pymelcloud.client import Client
@@ -62,12 +63,10 @@ class Device(ABC):
 
     def round_temperature(self, temperature: float) -> float:
         """Round a temperature to the nearest temperature increment."""
-        increment = self.temperature_increment
-        if temperature < 0:
-            half_increment = -increment / 2.0
-        else:
-            half_increment = increment / 2.0
-        return round((temperature + half_increment) / increment) * increment
+        return float(
+            Decimal(str(temperature / self.temperature_increment))
+            .quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        ) * self.temperature_increment
 
     @abstractmethod
     def apply_write(self, state: Dict[str, Any], key: str, value: Any):
