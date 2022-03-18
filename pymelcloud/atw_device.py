@@ -1,5 +1,6 @@
 """Air-To-Water (DeviceType=1) device definition."""
 from typing import Any, Callable, Dict, List, Optional
+from datetime import datetime
 
 from pymelcloud.device import EFFECTIVE_FLAGS, Device
 
@@ -434,3 +435,40 @@ class AtwDevice(Device):
         if self._state is None:
             return None
         return self._state.get("HolidayMode", False)
+
+    @property
+    def daily_heating_consumed_energy(self) -> Optional[float]:
+        """Return DailyHeatingEnergyConsumed.
+        """
+        value = self.get_device_prop("DailyHeatingEnergyConsumed")
+        if value is None:
+            return 0.0
+        return value
+
+    @property
+    def daily_cooling_consumed_energy(self) -> Optional[float]:
+        """Return DailyCoolingEnergyConsumed.
+        """
+        value = self.get_device_prop("DailyCoolingEnergyConsumed")
+        if value is None:
+            return 0.0
+        return value
+
+    @property
+    def daily_hotwater_consumed_energy(self) -> Optional[float]:
+        """Return DailyHotWaterEnergyConsumed.
+        """
+        value = self.get_device_prop("DailyHotWaterEnergyConsumed")
+        if value is None:
+            return 0.0
+        return value
+
+    @property
+    def daily_energy_consumed_date(self) -> Optional[datetime]:
+        """Return timestamp of the day for the consumed energy.
+
+        """
+        value = self.get_device_prop("DailyEnergyConsumedDate")
+        if value is None:
+            value =  "2000-12-31T00:00:00"
+        return datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")

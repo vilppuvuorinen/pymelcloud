@@ -1,5 +1,6 @@
 """Ecodan tests."""
 import pytest
+from datetime import datetime
 from pymelcloud import DEVICE_TYPE_ATW
 from pymelcloud.atw_device import (
     OPERATION_MODE_AUTO,
@@ -218,6 +219,10 @@ async def test_2zone_cancool():
     assert device.wifi_signal == -82
     assert device.has_error is False
     assert device.error_code is None
+    assert device.daily_cooling_consumed_energy == 0.0
+    assert device.daily_heating_consumed_energy == 0.0
+    assert device.daily_hotwater_consumed_energy == 0.0
+    assert device.daily_energy_consumed_date == datetime.strptime("2020-01-01T00:00:00", "%Y-%m-%dT%H:%M:%S")
 
     zones = device.zones
 
@@ -295,3 +300,17 @@ async def test_2zone_cancool():
         ZONE_OPERATION_MODE_COOL_FLOW,
     ]
     assert zones[1].status == ZONE_STATUS_IDLE
+
+@pytest.mark.asyncio
+async def test_3zone():
+    device = _build_device(
+        "atw_3zone_listdevice.json", "atw_3zone_get.json"
+    )
+
+    assert device.name == "Ecodan"
+    assert device.device_type == DEVICE_TYPE_ATW
+    assert device.daily_cooling_consumed_energy == 0.0
+    assert device.daily_heating_consumed_energy == 19.49
+    assert device.daily_hotwater_consumed_energy == 9.48
+    assert device.daily_energy_consumed_date == datetime.strptime("2022-03-16T00:00:00", "%Y-%m-%dT%H:%M:%S")
+  
