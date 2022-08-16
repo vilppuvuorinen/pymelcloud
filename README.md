@@ -44,6 +44,8 @@ Available properties:
 * `temp_unit`
 * `last_seen`
 * `power`
+* `daily_energy_consumed`
+
 
 Other properties are available through `_` prefixed state objects if
 one has the time to go through the source.
