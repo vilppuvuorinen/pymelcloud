@@ -93,6 +93,7 @@ class Device(ABC):
             and c.get("BuildingID") == self.building_id
         )
         self._state = await self._client.fetch_device_state(self)
+        self._energy_report = await self._client.fetch_energy_report(self)
 
         if self._device_units is None and self.access_level != ACCESS_LEVEL.get(
             "GUEST"
@@ -193,6 +194,21 @@ class Device(ABC):
         if self._state is None:
             return None
         return self._state.get("Power")
+
+    @property
+    def daily_energy_consumed(self) -> Optional[float]:
+        """Return daily energy consumption for the current day in kWh.
+
+        The value resets at midnight MELCloud time.
+        """
+        if self._energy_report is None:
+            return None
+        return (self._energy_report.get("TotalHeatingConsumed", 0.0)
+                + self._energy_report.get("TotalCoolingConsumed", 0.0)
+                + self._energy_report.get("TotalAutoConsumed", 0.0)
+                + self._energy_report.get("TotalDryConsumed", 0.0)
+                + self._energy_report.get("TotalFanConsumed", 0.0)
+                + self._energy_report.get("TotalOtherConsumed", 0.0))
 
     @property
     def wifi_signal(self) -> Optional[int]:

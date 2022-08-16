@@ -26,6 +26,7 @@ def _build_device(device_conf_name: str, device_state_name: str) -> ErvDevice:
         _client.device_confs.__iter__ = Mock(return_value=[device_conf].__iter__())
         _client.fetch_device_units = CoroutineMock(return_value=[])
         _client.fetch_device_state = CoroutineMock(return_value=device_state)
+        _client.fetch_energy_report = CoroutineMock(return_value=None)
         client = _client
 
     return ErvDevice(device_conf, client)
