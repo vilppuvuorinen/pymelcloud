@@ -187,21 +187,19 @@ class Client:
             return await resp.json()
 
     async def fetch_energy_report(self, device) -> Optional[Dict[Any, Any]]:
-        """Fetch energy report for the current day.
-
-        The energy report rolls over at midnight MELCloud time.
-        """
+        """Fetch energy report containing today and 1-2 days from the past."""
         device_id = device.device_id
-        today_str = datetime.today().strftime("%Y-%m-%d")
-        tomorrow_str = (datetime.today() + timedelta(days=1)).strftime("%Y-%m-%d")
+        from_str = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
+        to_str = (datetime.today() + timedelta(days=2)).strftime("%Y-%m-%d")
+
         async with self._session.post(
             f"{BASE_URL}/EnergyCost/Report",
             headers=_headers(self._token),
             json={
                 "DeviceId": device_id,
                 "UseCurrency": False,
-                "FromDate": f"{today_str}T00:00:00",
-                "ToDate": f"{tomorrow_str}T00:00:00"
+                "FromDate": f"{from_str}T00:00:00",
+                "ToDate": f"{to_str}T00:00:00"
             },
             raise_for_status=True,
         ) as resp:
