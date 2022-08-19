@@ -54,15 +54,13 @@ async def test_round_temperature():
         "ata_listdevice.json",
         "ata_get.json",
         {
-            "TotalHeatingConsumed": 1.0,
-            "TotalCoolingConsumed": 0.0,
-            "TotalAutoConsumed": 2.0,
-            "TotalDryConsumed": 0.0,
-            "TotalFanConsumed": 3.0,
+            "Heating": [0.0, 0.0, 1.0],
+            "Cooling": [0.0, 0.1, 10.0],
+            "Dry": [0.2, 0.0, 100.0],
+            "Fan": [0.3, 1000.0],
         },
     )
 
     await device.update()
 
-    assert device.daily_energy_consumed == 6.0
-
+    assert device.daily_energy_consumed == 1111.0

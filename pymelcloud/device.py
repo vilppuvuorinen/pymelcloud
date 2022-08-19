@@ -199,16 +199,27 @@ class Device(ABC):
     def daily_energy_consumed(self) -> Optional[float]:
         """Return daily energy consumption for the current day in kWh.
 
-        The value resets at midnight MELCloud time.
+        The value resets at midnight MELCloud time. The logic here is a bit iffy and
+        fragmented between Device and Client. Here's how it goes:
+          - Client requests a 5 day report. Today, 2 days from the past and 2 days from
+            the past.
+          - MELCloud, with its clock potentially set to a different timezone than the
+            client, returns a report containing data from a couple of days from the
+            past and from the current day in MELCloud time.
+          - Device sums up the date from the last day bucket in the report.
+
+        TLDR: Request some days from the past and some days from the future -> receive
+        the latest day bucket.
         """
         if self._energy_report is None:
             return None
-        return (self._energy_report.get("TotalHeatingConsumed", 0.0)
-                + self._energy_report.get("TotalCoolingConsumed", 0.0)
-                + self._energy_report.get("TotalAutoConsumed", 0.0)
-                + self._energy_report.get("TotalDryConsumed", 0.0)
-                + self._energy_report.get("TotalFanConsumed", 0.0)
-                + self._energy_report.get("TotalOtherConsumed", 0.0))
+
+        consumption = 0
+
+        for mode in ['Heating', 'Cooling', 'Auto', 'Dry', 'Fan', 'Other']:
+            consumption += self._energy_report.get(mode, [0.0])[-1]
+
+        return consumption
 
     @property
     def wifi_signal(self) -> Optional[int]:
