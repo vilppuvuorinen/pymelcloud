@@ -46,7 +46,12 @@ async def test_energy_report_none_if_no_report():
 
     await device.update()
 
-    assert device.daily_energy_consumed == None
+    assert device.daily_energy_consumed is None
+
+def test_energy_report_before_update():
+    device = _build_device("ata_listdevice.json", "ata_get.json")
+
+    assert device.daily_energy_consumed is None
 
 @pytest.mark.asyncio
 async def test_round_temperature():

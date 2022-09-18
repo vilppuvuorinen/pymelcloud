@@ -43,6 +43,7 @@ class Device(ABC):
         self._device_conf = device_conf
         self._state = None
         self._device_units = None
+        self._energy_report = None
         self._client = client
 
         self._set_debounce = set_debounce
