@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.8] - 2022-09-18
+### Fixed
+- Fix `daily_energy_consumed` before the first update.
+
 ## [2.5.7] - 2022-08-19
 ### Added
 - Add report based daily energy consumption for all devices.
