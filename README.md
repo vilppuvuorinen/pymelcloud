@@ -130,6 +130,9 @@ Writes are applied after a debounce and update the local state once
 completed. The physical device does not register the changes
 immediately due to the 60 second polling interval.
 
+To change a device's properties, call `device.set` with a Dict of the
+new property values, for example: `await device.set({"fan_speed": "1"})`.
+
 Writable properties are:
 
 * `power`
