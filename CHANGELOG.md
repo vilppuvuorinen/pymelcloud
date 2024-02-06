@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.9] - 2024-02-06
+### Removed
+- Disable energy report calls.
+
 ## [2.5.8] - 2022-09-18
 ### Fixed
 - Fix `daily_energy_consumed` before the first update.
