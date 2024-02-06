@@ -39,33 +39,3 @@ async def test_round_temperature():
     assert device.round_temperature(25.00001) == 25.0
     assert device.round_temperature(25.49999) == 25.0
     assert device.round_temperature(25.5) == 26.0
-
-@pytest.mark.asyncio
-async def test_energy_report_none_if_no_report():
-    device = _build_device("ata_listdevice.json", "ata_get.json")
-
-    await device.update()
-
-    assert device.daily_energy_consumed is None
-
-def test_energy_report_before_update():
-    device = _build_device("ata_listdevice.json", "ata_get.json")
-
-    assert device.daily_energy_consumed is None
-
-@pytest.mark.asyncio
-async def test_round_temperature():
-    device = _build_device(
-        "ata_listdevice.json",
-        "ata_get.json",
-        {
-            "Heating": [0.0, 0.0, 1.0],
-            "Cooling": [0.0, 0.1, 10.0],
-            "Dry": [0.2, 0.0, 100.0],
-            "Fan": [0.3, 1000.0],
-        },
-    )
-
-    await device.update()
-
-    assert device.daily_energy_consumed == 1111.0

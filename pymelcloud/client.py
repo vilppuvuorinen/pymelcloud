@@ -186,25 +186,6 @@ class Client:
         ) as resp:
             return await resp.json()
 
-    async def fetch_energy_report(self, device) -> Optional[Dict[Any, Any]]:
-        """Fetch energy report containing today and 1-2 days from the past."""
-        device_id = device.device_id
-        from_str = (datetime.today() - timedelta(days=2)).strftime("%Y-%m-%d")
-        to_str = (datetime.today() + timedelta(days=2)).strftime("%Y-%m-%d")
-
-        async with self._session.post(
-            f"{BASE_URL}/EnergyCost/Report",
-            headers=_headers(self._token),
-            json={
-                "DeviceId": device_id,
-                "UseCurrency": False,
-                "FromDate": f"{from_str}T00:00:00",
-                "ToDate": f"{to_str}T00:00:00"
-            },
-            raise_for_status=True,
-        ) as resp:
-            return await resp.json()
-
     async def set_device_state(self, device):
         """Update device state.
 
